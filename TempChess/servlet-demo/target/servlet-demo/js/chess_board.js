@@ -7,6 +7,8 @@ var BLOCK_COLOUR_1 = '#9f7119',
 	HIGHLIGHT_COLOUR = '#fb0006';
 
 var piecePositions = null;
+var req = new XMLHttpRequest();
+var answer;  // TODO: replace to JSON
 
 var PIECE_PAWN = 0,
 	PIECE_CASTLE = 1,
@@ -19,12 +21,27 @@ var PIECE_PAWN = 0,
 	pieces = null,
 	ctx = null,
 	json = null,
+	jsonToServer = null,
 	canvas = null,
 	BLACK_TEAM = 0,
 	WHITE_TEAM = 1,
 	SELECT_LINE_WIDTH = 5,
 	currentTurn = WHITE_TEAM,
 	selectedPiece = null;
+
+
+function sendToServer(json){
+ //   var req = new XMLHttpRequest();
+    req.open("POST","home of server",true);
+    req.send(json);
+
+    req.onreadystatechange = function() {
+        if (req.readyState === 4 && req.status === 200){
+            answer =  JSON.parse(req.responseText);
+        }
+        else return;
+    }
+}
 
 function screenToBlock(x, y) {
 	var block =  {
@@ -86,52 +103,26 @@ function canPawnMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 	return clickedBlock.row === iRowToMoveTo &&
 			(bNextRowEmpty === true || bAdjacentEnemy === true);
 
-	// TODO
 	}
+
+
 
 function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
-	var bCanMove = false;
 
-	switch (selectedPiece.piece) {
+    /*var jsonToServer = new JSON();
+    jsonToServer.add(selectedPiece);
+    jsonToServer.add(clickedBlock);
+    sendToServer(jsonToServer);*/
+    answer = 'OK'; // TODO: Replace answer. This is cap
+    if (answer == 'OK'){
+        //TODO: MOVE!!
+        return true;
+    } else {
+        //TODO: Push error message. This move is impossible
+        return false;
+    }
 
-	case PIECE_PAWN:
 
-		bCanMove = canPawnMoveToBlock(selectedPiece, clickedBlock, enemyPiece);
-
-		break;
-
-	case PIECE_CASTLE:
-
-		// TODO
-
-		break;
-
-	case PIECE_ROUKE:
-
-		// TODO
-
-		break;
-
-	case PIECE_BISHOP:
-
-		// TODO
-
-		break;
-
-	case PIECE_QUEEN:
-
-		// TODO
-
-		break;
-
-	case PIECE_KING:
-
-		// TODO
-
-		break;
-	}
-
-	return bCanMove;
 }
 
 function getPieceAtBlock(clickedBlock) {

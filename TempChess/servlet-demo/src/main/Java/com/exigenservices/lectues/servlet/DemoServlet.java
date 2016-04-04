@@ -15,13 +15,13 @@ import java.io.IOException;
  */
 public class DemoServlet extends HttpServlet {
 
-        protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("sds",1);
-            String json = new Gson().toJson(jsonObject);
-            response.setContentType("application/json");
-            response.setCharacterEncoding("UTF-8");
-            response.getWriter().write(json);
-        }
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("sds", 1);
+        String json = new Gson().toJson(jsonObject);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(json);
+    }
 }

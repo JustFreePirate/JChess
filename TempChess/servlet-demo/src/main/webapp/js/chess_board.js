@@ -7,6 +7,8 @@ var BLOCK_COLOUR_1 = '#9f7119',
 	HIGHLIGHT_COLOUR = '#fb0006';
 
 var piecePositions = null;
+var req = new XMLHttpRequest();
+var answer;  // TODO: replace to JSON
 
 var PIECE_PAWN = 0,
 	PIECE_CASTLE = 1,
@@ -26,6 +28,20 @@ var PIECE_PAWN = 0,
 	SELECT_LINE_WIDTH = 5,
 	currentTurn = WHITE_TEAM,
 	selectedPiece = null;
+
+
+function sendToServer(json){
+ //   var req = new XMLHttpRequest();
+    req.open("POST","home of server",true);
+    req.send(json);
+
+    req.onreadystatechange = function() {
+        if (req.readyState === 4 && req.status === 200){
+            answer =  JSON.parse(req.responseText);
+        }
+        else return;
+    }
+}
 
 function screenToBlock(x, y) {
 	var block =  {
@@ -76,7 +92,7 @@ function blockOccupied(clickedBlock) {
 	return (pieceAtBlock !== null);
 }
 
-/*function canPawnMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
+function canPawnMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 	var iRowToMoveTo = (currentTurn === WHITE_TEAM ? selectedPiece.row - 1 : selectedPiece.row + 1),
 		bAdjacentEnemy = (clickedBlock.col === selectedPiece.col + 1 ||
 					clickedBlock.col === selectedPiece.col - 1) &&
@@ -87,54 +103,24 @@ function blockOccupied(clickedBlock) {
 	return clickedBlock.row === iRowToMoveTo &&
 			(bNextRowEmpty === true || bAdjacentEnemy === true);
 
-	}*/
+	}
+
+
 
 function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
-    // TODO: Create json and push him to server. Waiting response from server.
-	/*var bCanMove = false;
-
-	switch (selectedPiece.piece) {
-
-	case PIECE_PAWN:
-
-		bCanMove = canPawnMoveToBlock(selectedPiece, clickedBlock, enemyPiece);
-
-		break;
-
-	case PIECE_CASTLE:
-
-		// TODO
-
-		break;
-
-	case PIECE_ROUKE:
-
-		// TODO
-
-		break;
-
-	case PIECE_BISHOP:
-
-		// TODO
-
-		break;
-
-	case PIECE_QUEEN:
-
-		// TODO
-
-		break;
-
-	case PIECE_KING:
-
-		// TODO
-
-		break;
-	}
-
-	return bCanMove;*/
-
+    /*var jsonToServer = new JSON();
+    jsonToServer.add(selectedPiece);
+    jsonToServer.add(clickedBlock);
+    sendToServer(jsonToServer);*/
+    answer = 'OK'; // TODO: Replace answer. This is cap
+    if (answer == 'OK'){
+        //TODO: MOVE!!
+        return true;
+    } else {
+        //TODO: Push error message. This move is impossible
+        return false;
+    }
 
 
 }
