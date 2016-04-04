@@ -2,12 +2,12 @@
     <head>
         <title>Game page</title>
         <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
-        <script type="text/javascript" src="/servlet-demo/js/common.js"></script>
+        <script type="text/javascript" src="/servlet-demo/js/chess_board.js"></script>
 
     </head>
-    <body>
-            <canvas id="myCanvas" width="560" height="560" style="border:2px solid #d3d3d3;">
-            Ваш браузер не поддерживает канвас</canvas>
-            <p class="text"></p>
-    </body>
+    <body onload='draw();'>
+    		<div>
+    			<canvas id="chess" width="800" height="800"></canvas>
+    		</div>
+    	</body>
 </html>
