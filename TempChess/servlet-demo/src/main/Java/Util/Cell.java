@@ -1,5 +1,7 @@
 package Util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.awt.*;
 import java.util.Collection;
 
@@ -18,7 +20,7 @@ public enum Cell {
     A1,B1,C1,D1,E1,F1,G1,H1;
 
     public static Cell getCell(Column c, Row r){
-        String name = c.name() + r.name();
+        String name = "" + c.name().charAt(1) + r.name().charAt(1);
         return Cell.valueOf(name);
     }
     public Column getColumn(){
@@ -26,5 +28,17 @@ public enum Cell {
     }
     public Row getRow(){
         return Row.valueOf("r" + this.name().charAt(1));
+    }
+    @Nullable
+    public Cell go (int x, int y){
+        int xx = this.getColumn().ordinal();
+        int yy = this.getRow().ordinal();
+
+        try {
+            return Cell.getCell(Column.values()[xx + x], Row.values()[yy + y]);
+        }
+        catch (Exception e){
+            return null;
+        }
     }
 }

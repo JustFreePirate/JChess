@@ -10,7 +10,7 @@ public class Move {
     private Cell to;
 
     private Move () {}
-    private Move (Person person, Decision decision,Cell from, Cell to) {
+    private Move (Person person, Decision decision, Cell from, Cell to) {
         this.person = person;
         this.decision = decision;
         this.from = from;
