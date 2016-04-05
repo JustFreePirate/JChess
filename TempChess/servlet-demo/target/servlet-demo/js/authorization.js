@@ -1,7 +1,7 @@
 $(document).ready(function(){
     var login = document.getElementById("login");
     var password = document.getElementById("password");
-    $("SignIn").click = function(){
+    $("SignIn").on('click', function(){
         var req = new XMLHttpRequest();
         var data = {
         login: login,
@@ -13,5 +13,5 @@ $(document).ready(function(){
         //req.send(data);
 
 
-    }
-})
+    });
+});
