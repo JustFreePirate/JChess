@@ -32,7 +32,7 @@ var PIECE_PAWN = 0,
 
 function sendToServer(json){
  //   var req = new XMLHttpRequest();
-    req.open("POST","home of server",true);
+    req.open("POST","home of server",false);
     req.send(json);
 
     req.onreadystatechange = function() {
@@ -92,27 +92,19 @@ function blockOccupied(clickedBlock) {
 	return (pieceAtBlock !== null);
 }
 
-function canPawnMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
-	var iRowToMoveTo = (currentTurn === WHITE_TEAM ? selectedPiece.row - 1 : selectedPiece.row + 1),
-		bAdjacentEnemy = (clickedBlock.col === selectedPiece.col + 1 ||
-					clickedBlock.col === selectedPiece.col - 1) &&
-					enemyPiece !== null,
-		bNextRowEmpty = (clickedBlock.col === selectedPiece.col &&
-					blockOccupied(clickedBlock) === false);
-
-	return clickedBlock.row === iRowToMoveTo &&
-			(bNextRowEmpty === true || bAdjacentEnemy === true);
-
-	}
-
 
 
 function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
-    /*var jsonToServer = new JSON();
-    jsonToServer.add(selectedPiece);
-    jsonToServer.add(clickedBlock);
-    sendToServer(jsonToServer);*/
+    var jsonToServer;
+    jsonToServer = {
+        status: "Move",
+        From: selectedPiece,
+        To: clickedBlock
+    }
+    var str = JSON.stringify(jsonToServer)
+    //alert(str);
+    //sendToServer(jsonToServer);
     answer = 'OK'; // TODO: Replace answer. This is cap
     if (answer == 'OK'){
         //TODO: MOVE!!
@@ -477,6 +469,19 @@ function processMove(clickedBlock) {
 	} else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
 		movePiece(clickedBlock, enemyPiece);
 	}
+	//WaitingEnemyMove();
+}
+
+function WaitingEnemyMove(){
+    alert('rara');
+	req.open('GET','home of server',false);
+	req.send('Waiting');
+    req.onreadystatechange = function() {
+            if (req.readyState === 4 && req.status === 200){
+                answer =  JSON.parse(req.responseText);
+            }
+            else return;
+        }
 }
 
 function board_click(ev) {
@@ -489,6 +494,7 @@ function board_click(ev) {
 	} else {
 		processMove(clickedBlock);
 	}
+
 }
 
 function draw() {
