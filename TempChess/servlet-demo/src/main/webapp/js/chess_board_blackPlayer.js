@@ -2,9 +2,9 @@ var NUMBER_OF_COLS = 8,
 	NUMBER_OF_ROWS = 8,
 	BLOCK_SIZE = 100;
 
-var BLOCK_COLOUR_1 = '#9f7119',
-	BLOCK_COLOUR_2 = '#debf83',
-	HIGHLIGHT_COLOUR = '#fb0006';
+var BLOCK_COLOUR_1 = '#f0d9b5',
+	BLOCK_COLOUR_2 = '#b58863',
+	HIGHLIGHT_COLOUR = '#bbd26b';
 
 var piecePositions = null;
 var req = new XMLHttpRequest();

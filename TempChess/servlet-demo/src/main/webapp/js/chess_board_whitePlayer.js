@@ -2,9 +2,9 @@ var NUMBER_OF_COLS = 8,
 	NUMBER_OF_ROWS = 8,
 	BLOCK_SIZE = 100;
 
-var BLOCK_COLOUR_1 = '#9f7119',
-	BLOCK_COLOUR_2 = '#debf83',
-	HIGHLIGHT_COLOUR = '#fb0006';
+var BLOCK_COLOUR_1 = '#b58863',
+	BLOCK_COLOUR_2 = '#f0d9b5',
+	HIGHLIGHT_COLOUR = '#bbd26b';
 
 var piecePositions = null;
 var req = new XMLHttpRequest();
@@ -149,8 +149,8 @@ function drawBlock(iRowCounter, iBlockCounter) {
 function getImageCoords(pieceCode, bBlackTeam) {
 
 	var imageCoords =  {
-		"x": pieceCode * BLOCK_SIZE,
-		"y": (bBlackTeam ? 0 : BLOCK_SIZE)
+		"x": pieceCode * 100,
+		"y": (bBlackTeam ? 0 : 100)
 	};
 
 	return imageCoords;
@@ -163,7 +163,7 @@ function drawPiece(curPiece, bBlackTeam) {
 	// Draw the piece onto the canvas
 	ctx.drawImage(pieces,
 		imageCoords.x, imageCoords.y,
-		BLOCK_SIZE, BLOCK_SIZE,
+		100, 100,
 		curPiece.col * BLOCK_SIZE, curPiece.row * BLOCK_SIZE,
 		BLOCK_SIZE, BLOCK_SIZE);
 }
@@ -502,10 +502,14 @@ function draw() {
 
 	// Canvas supported?
 	if (canvas.getContext) {
+
+
 		ctx = canvas.getContext('2d');
 
 		// Calculdate the precise block size
-		BLOCK_SIZE = canvas.height / NUMBER_OF_ROWS;
+		BLOCK_SIZE = (canvas.height / NUMBER_OF_ROWS)*0.71;
+
+		//TODO: Change 0.71 to CONST, Write JS to count it
 
 		// Draw the background
 		drawBoard();
@@ -517,8 +521,13 @@ function draw() {
 		pieces.src = 'pieces.png';
 		pieces.onload = drawPieces;
 
+
+
 		canvas.addEventListener('click', board_click, false);
 	} else {
 		alert("Canvas not supported!");
 	}
+
+
+
 }
