@@ -6,6 +6,7 @@ var BLOCK_COLOUR_1 = '#b58863',
 	BLOCK_COLOUR_2 = '#f0d9b5',
 	HIGHLIGHT_COLOUR = '#bbd26b';
 
+
 var piecePositions = null;
 var req = new XMLHttpRequest();
 var answer;  // TODO: replace to JSON
@@ -81,11 +82,11 @@ function blockOccupiedByEnemy(clickedBlock) {
 
 
 function blockOccupied(clickedBlock) {
-	var pieceAtBlock = getPieceAtBlockForTeam(json.black, clickedBlock);
+	//var pieceAtBlock = getPieceAtBlockForTeam(json.black, clickedBlock);
 
-	if (pieceAtBlock === null) {
+	//if (pieceAtBlock === null) {
 		pieceAtBlock = getPieceAtBlockForTeam(json.white, clickedBlock);
-	}
+	//}
 
 	return (pieceAtBlock !== null);
 }
@@ -117,7 +118,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
 function getPieceAtBlock(clickedBlock) {
 
-	var team = (currentTurn === BLACK_TEAM ? json.black : json.white);
+	var team = json.white;
 
 	return getPieceAtBlockForTeam(team, clickedBlock);
 }
@@ -437,8 +438,10 @@ function movePiece(clickedBlock, enemyPiece) {
 	// Clear the block in the original position
 	drawBlock(selectedPiece.col, selectedPiece.row);
 
-	var team = (currentTurn === WHITE_TEAM ? json.white : json.black),
-		opposite = (currentTurn !== WHITE_TEAM ? json.white : json.black);
+	var //team = (currentTurn === WHITE_TEAM ? json.white : json.black),
+		team = json.white;
+		//opposite = (currentTurn !== WHITE_TEAM ? json.white : json.black);
+        opposite = json.black;
 
 	team[selectedPiece.position].col = clickedBlock.col;
 	team[selectedPiece.position].row = clickedBlock.row;
@@ -450,9 +453,8 @@ function movePiece(clickedBlock, enemyPiece) {
 	}
 
 	// Draw the piece in the new position
-	drawPiece(selectedPiece, (currentTurn === BLACK_TEAM));
+	drawPiece(selectedPiece, BLACK_TEAM );
 
-	currentTurn = (currentTurn === WHITE_TEAM ? BLACK_TEAM : WHITE_TEAM);
 
 	selectedPiece = null;
 }
