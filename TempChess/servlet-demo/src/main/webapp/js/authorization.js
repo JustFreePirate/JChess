@@ -1,11 +1,11 @@
 $(document).ready(function(){
-    var login = document.getElementById("login");
-    var password = document.getElementById("password");
-    $("SignIn").on('click', function(){
+    var login = document.getElementById('login');
+    var password = document.getElementById('password');
+    $('#SignIn').on('click', function(){
         var req = new XMLHttpRequest();
         var data = {
-        login: login,
-        password: password
+        login: login.value,
+        password: password.value
         }
         var str = JSON.stringify(data);
         alert(str);
@@ -14,4 +14,13 @@ $(document).ready(function(){
 
 
     });
+
+    $('.toggle').on('click', function() {
+      $('.container').stop().addClass('active');
+    });
+
+    $('.close').on('click', function() {
+      $('.container').stop().removeClass('active');
+    });
+
 });
