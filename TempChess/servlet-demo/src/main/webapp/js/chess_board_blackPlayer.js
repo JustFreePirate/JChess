@@ -2,9 +2,9 @@ var NUMBER_OF_COLS = 8,
 	NUMBER_OF_ROWS = 8,
 	BLOCK_SIZE = 100;
 
-var BLOCK_COLOUR_1 = '#9f7119',
-	BLOCK_COLOUR_2 = '#debf83',
-	HIGHLIGHT_COLOUR = '#fb0006';
+var BLOCK_COLOUR_1 = '#f0d9b5',
+BLOCK_COLOUR_2 = '#b58863',
+HIGHLIGHT_COLOUR = '#bbd26b';
 
 var piecePositions = null;
 var req = new XMLHttpRequest();
@@ -26,7 +26,8 @@ var PIECE_PAWN = 0,
 	BLACK_TEAM = 0,
 	WHITE_TEAM = 1,
 	SELECT_LINE_WIDTH = 5,
-	currentTurn = WHITE_TEAM,
+	currentTurn = BLACK_TEAM,  //TODO: Remove this. Need for testing.
+	//currentTurn = WHITE_TEAM,
 	selectedPiece = null;
 
 
@@ -76,7 +77,7 @@ function getPieceAtBlockForTeam(teamOfPieces, clickedBlock) {
 }
 
 function blockOccupiedByEnemy(clickedBlock) {
-	var team = (currentTurn === BLACK_TEAM ? json.white : json.black);
+	var team = json.white;
 
 	return getPieceAtBlockForTeam(team, clickedBlock);
 }
@@ -85,9 +86,6 @@ function blockOccupiedByEnemy(clickedBlock) {
 function blockOccupied(clickedBlock) {
 	var pieceAtBlock = getPieceAtBlockForTeam(json.black, clickedBlock);
 
-	if (pieceAtBlock === null) {
-		pieceAtBlock = getPieceAtBlockForTeam(json.white, clickedBlock);
-	}
 
 	return (pieceAtBlock !== null);
 }
@@ -126,7 +124,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
 function getPieceAtBlock(clickedBlock) {
 
-	var team = (currentTurn === BLACK_TEAM ? json.black : json.white);
+	var team = json.black;
 
 	return getPieceAtBlockForTeam(team, clickedBlock);
 }
@@ -221,7 +219,7 @@ function drawBoard() {
 
 function defaultPositions() {
 	json = {
-		"black":
+		"white":
 			[
 				{
 					"piece": PIECE_CASTLE,
@@ -320,7 +318,7 @@ function defaultPositions() {
 					"status": IN_PLAY
 				}
 			],
-		"white":
+		"black":
 			[
 				{
 					"piece": PIECE_CASTLE,
@@ -446,8 +444,8 @@ function movePiece(clickedBlock, enemyPiece) {
 	// Clear the block in the original position
 	drawBlock(selectedPiece.col, selectedPiece.row);
 
-	var team = (currentTurn === WHITE_TEAM ? json.white : json.black),
-		opposite = (currentTurn !== WHITE_TEAM ? json.white : json.black);
+	var team = json.black;
+		opposite = json.white;
 
 	team[selectedPiece.position].col = clickedBlock.col;
 	team[selectedPiece.position].row = clickedBlock.row;
@@ -459,9 +457,7 @@ function movePiece(clickedBlock, enemyPiece) {
 	}
 
 	// Draw the piece in the new position
-	drawPiece(selectedPiece, (currentTurn === BLACK_TEAM));
-
-	currentTurn = (currentTurn === WHITE_TEAM ? BLACK_TEAM : WHITE_TEAM);
+	drawPiece(selectedPiece, WHITE_TEAM);
 
 	selectedPiece = null;
 }
@@ -476,7 +472,7 @@ function processMove(clickedBlock) {
 	} else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
 		movePiece(clickedBlock, enemyPiece);
 	}
-	WaitingEnemyMove();
+	//WaitingEnemyMove();
 }
 
 function WaitingEnemyMove(){

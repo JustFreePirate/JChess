@@ -1,4 +1,4 @@
-<html>
+/<html>
     <head>
         <title>Start</title>
         <link rel='stylesheet prefetch' href='http://fonts.googleapis.com/css?family=Roboto:400,100,300,500,700,900|RobotoDraft:400,100,300,500,700,900'>
