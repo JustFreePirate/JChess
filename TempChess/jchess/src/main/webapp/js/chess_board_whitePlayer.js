@@ -1,12 +1,14 @@
 var NUMBER_OF_COLS = 8,
 	NUMBER_OF_ROWS = 8,
 	BLOCK_SIZE = 100;
+var HD_HEIGHT = 1080;
+
 
 var BLOCK_COLOUR_1 = '#b58863',
 	BLOCK_COLOUR_2 = '#f0d9b5',
 	HIGHLIGHT_COLOUR = '#bbd26b';
 
-
+var canvasCoef = 1;
 var piecePositions = null;
 var req = new XMLHttpRequest();
 var answer;  // TODO: replace to JSON
@@ -26,7 +28,7 @@ var PIECE_PAWN = 0,
 	canvas = null,
 	BLACK_TEAM = 0,
 	WHITE_TEAM = 1,
-	SELECT_LINE_WIDTH = 5,
+	SELECT_LINE_WIDTH = 3,
 	currentTurn = WHITE_TEAM,
 	selectedPiece = null;
 
@@ -54,6 +56,8 @@ function screenToBlock(x, y) {
 }
 
 function getPieceAtBlockForTeam(teamOfPieces, clickedBlock) {
+    //alert(clickedBlock.row);
+    //alert(clickedBlock.col);
 
 	var curPiece = null,
 		iPieceCounter = 0,
@@ -105,13 +109,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
     //alert(str);
     //sendToServer(jsonToServer);
     answer = 'OK'; // TODO: Replace answer. This is cap
-    if (answer == 'OK'){
-        //TODO: MOVE!!
-        return true;
-    } else {
-        //TODO: Push error message. This move is impossible
-        return false;
-    }
+    return (answer == 'OK');
 
 
 }
@@ -140,9 +138,10 @@ function drawBlock(iRowCounter, iBlockCounter) {
 	// Set the background
 	ctx.fillStyle = getBlockColour(iRowCounter, iBlockCounter);
 
+
 	// Draw rectangle for the background
 	ctx.fillRect(iRowCounter * BLOCK_SIZE, iBlockCounter * BLOCK_SIZE,
-		BLOCK_SIZE, BLOCK_SIZE);
+	BLOCK_SIZE, BLOCK_SIZE);
 
 	ctx.stroke();
 }
@@ -436,6 +435,7 @@ function checkIfPieceClicked(clickedBlock) {
 
 function movePiece(clickedBlock, enemyPiece) {
 	// Clear the block in the original position
+
 	drawBlock(selectedPiece.col, selectedPiece.row);
 
 	var //team = (currentTurn === WHITE_TEAM ? json.white : json.black),
@@ -504,17 +504,21 @@ function draw() {
 
 	// Canvas supported?
 	if (canvas.getContext) {
+        ctx = canvas.getContext('2d');
+
+        canvasCoef = screen.availHeight / HD_HEIGHT ;
+
+        if (canvas.height > screen.availHeight) {
+            canvas.height = canvas.height * canvasCoef;
+            canvas.width = canvas.width * canvasCoef;
+        }
+
+        // Calculate the precise block size
+        BLOCK_SIZE = canvas.height / NUMBER_OF_ROWS;
 
 
-		ctx = canvas.getContext('2d');
-
-		// Calculdate the precise block size
-		BLOCK_SIZE = (canvas.height / NUMBER_OF_ROWS)*0.71;
-
-		//TODO: Change 0.71 to CONST, Write JS to count it
-
-		// Draw the background
-		drawBoard();
+        // Draw the background
+        drawBoard();
 
 		defaultPositions();
 
