@@ -17,19 +17,19 @@
         <h1 class="title">Login</h1>
         <form>
           <div class="input-container">
-            <input type="text" id="login" required="required">
+            <input type="text" id="loginSignIn" required="required">
             <label for="login">Login</label>
             <div class="bar"></div>
           </div>
           <div class="input-container">
-            <input type="password" id="password" required="required">
+            <input type="password" id="passwordSignIn" required="required">
             <label for="password">Password</label>
             <div class="bar"></div>
           </div>
           <div class="button-container">
             <button value="SignIn" id="SignIn"><span>Sign In</span></button>
           </div>
-          <div class="footer"><a href="#">Forgot your password?</a></div>
+          <div class="footer"><a href="/jchess/forgotPass.jsp">Forgot your password?</a></div>
         </form>
       </div>
 
@@ -41,22 +41,22 @@
           </h1>
           <form>
             <div class="input-container">
-              <input type="text" id="login" required="required"/>
+              <input type="text" id="loginSignUp" required="required"/>
               <label for="login">Login</label>
               <div class="bar"></div>
             </div>
             <div class="input-container">
-              <input type="password" id="password" required="required"/>
+              <input type="password" id="passwordSignUp" required="required"/>
               <label for="password">Password</label>
               <div class="bar"></div>
             </div>
             <div class="input-container">
-              <input type="password" id="repeat_password" required="required"/>
+              <input type="password" id="repeatPasswordSignUp" required="required"/>
               <label for="repeat_password">Repeat Password</label>
               <div class="bar"></div>
             </div>
             <div class="button-container">
-              <button><span>SignUp</span></button>
+              <button id = 'SignUp'><span>SignUp</span></button>
             </div>
           </form>
         </div>
