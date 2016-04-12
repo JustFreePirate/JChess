@@ -101,15 +101,17 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
     var jsonToServer;
     jsonToServer = {
-        status: "Move",
-        From: selectedPiece,
-        To: clickedBlock
+        type: "Move",
+        from: selectedPiece,
+        to: clickedBlock
     }
     var str = JSON.stringify(jsonToServer)
     //alert(str);
     //sendToServer(jsonToServer);
-    answer = 'OK'; // TODO: Replace answer. This is cap
-    return (answer == 'OK');
+    answer = {
+        response: 'OK'                // TODO: Replace answer. This is cap
+    }
+    return (answer.response === 'OK');
 
 
 }

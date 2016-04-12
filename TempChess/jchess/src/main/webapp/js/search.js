@@ -9,7 +9,12 @@ $(document).ready(function(){
         req.onreadystatechange = function(){
             if(req.readyState === 4 && req.status === 200){
                 var answer = JSON.parse(req.responseText);
-                //TODO: Go to white or black board
+                if(answer.color === 'white'){
+                    window.location.href = '/jchess/whiteBoard.jsp';
+                }
+                if(answer.color === 'black'){
+                    window.location.href = '/jchess/blackBoard.jsp';
+                }
             }
             else {return;}
         }

@@ -33,7 +33,7 @@ var PIECE_PAWN = 0,
 
 function sendToServer(json){
  //   var req = new XMLHttpRequest();
-    req.open("POST","home of server",true);
+    req.open("POST","/game",true);
     req.send(json);
 
     req.onreadystatechange = function() {
@@ -90,18 +90,6 @@ function blockOccupied(clickedBlock) {
 	return (pieceAtBlock !== null);
 }
 
-/*function canPawnMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
-	var iRowToMoveTo = (currentTurn === WHITE_TEAM ? selectedPiece.row - 1 : selectedPiece.row + 1),
-		bAdjacentEnemy = (clickedBlock.col === selectedPiece.col + 1 ||
-					clickedBlock.col === selectedPiece.col - 1) &&
-					enemyPiece !== null,
-		bNextRowEmpty = (clickedBlock.col === selectedPiece.col &&
-					blockOccupied(clickedBlock) === false);
-
-	return clickedBlock.row === iRowToMoveTo &&
-			(bNextRowEmpty === true || bAdjacentEnemy === true);
-
-	}*/
 
 
 
@@ -109,15 +97,16 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
     var jsonToServer;
     jsonToServer = {
-        status: "Move",
-        From: selectedPiece,
-        To: clickedBlock
+        type: "Move",
+        from: selectedPiece,
+        to: clickedBlock
     }
     var str = JSON.stringify(jsonToServer)
-    alert(str);
     //sendToServer(jsonToServer);
-    answer = 'OK'; // TODO: Replace answer. This is cap
-    return(answer == 'OK');
+    answer = {
+        response: 'Ok'               // TODO: Replace answer. This is cap
+    }
+    return(answer.response === 'Ok');
 
 
 }
