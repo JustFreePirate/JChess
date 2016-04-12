@@ -4,8 +4,8 @@ var NUMBER_OF_COLS = 8,
 var HD_HEIGHT = 1080;
 
 
-var BLOCK_COLOUR_1 = '#b58863',
-	BLOCK_COLOUR_2 = '#f0d9b5',
+var BLOCK_COLOUR_1 = '#f0d9b5',
+    BLOCK_COLOUR_2 = '#b58863',
 	HIGHLIGHT_COLOUR = '#bbd26b';
 
 var canvasCoef = 1;
@@ -251,13 +251,13 @@ function defaultPositions() {
 				{
 					"piece": PIECE_KING,
 					"row": 0,
-					"col": 3,
+					"col": 4,
 					"status": IN_PLAY
 				},
 				{
 					"piece": PIECE_QUEEN,
 					"row": 0,
-					"col": 4,
+					"col": 3,
 					"status": IN_PLAY
 				},
 				{
@@ -350,13 +350,13 @@ function defaultPositions() {
 				{
 					"piece": PIECE_KING,
 					"row": 7,
-					"col": 3,
+					"col": 4,
 					"status": IN_PLAY
 				},
 				{
 					"piece": PIECE_QUEEN,
 					"row": 7,
-					"col": 4,
+					"col": 3,
 					"status": IN_PLAY
 				},
 				{
