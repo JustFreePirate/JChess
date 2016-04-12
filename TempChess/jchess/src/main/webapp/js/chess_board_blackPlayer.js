@@ -1,11 +1,13 @@
 var NUMBER_OF_COLS = 8,
 	NUMBER_OF_ROWS = 8,
 	BLOCK_SIZE = 100;
+var HD_HEIGHT = 1080;
 
 var BLOCK_COLOUR_1 = '#f0d9b5',
 	BLOCK_COLOUR_2 = '#b58863',
 	HIGHLIGHT_COLOUR = '#bbd26b';
 
+var canvasCoef = 1;
 var piecePositions = null;
 var req = new XMLHttpRequest();
 var answer;  // TODO: replace to JSON
@@ -25,7 +27,7 @@ var PIECE_PAWN = 0,
 	canvas = null,
 	BLACK_TEAM = 0,
 	WHITE_TEAM = 1,
-	SELECT_LINE_WIDTH = 5,
+	SELECT_LINE_WIDTH = 3,
 	currentTurn = BLACK_TEAM,  //TODO: Remove this. Need for testing.
 	//currentTurn = WHITE_TEAM,
 	selectedPiece = null;
@@ -102,6 +104,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: clickedBlock
     }
     var str = JSON.stringify(jsonToServer)
+    alert(str);
     //sendToServer(jsonToServer);
     answer = {
         response: 'Ok'               // TODO: Replace answer. This is cap
@@ -138,6 +141,11 @@ function drawBlock(iRowCounter, iBlockCounter) {
 	// Draw rectangle for the background
 	ctx.fillRect(iRowCounter * BLOCK_SIZE, iBlockCounter * BLOCK_SIZE,
 		BLOCK_SIZE, BLOCK_SIZE);
+	ctx.lineWidth = 3;
+    	ctx.strokeStyle = "#000000";
+        ctx.strokeRect(0, 0,
+        		NUMBER_OF_ROWS * BLOCK_SIZE,
+        		NUMBER_OF_COLS * BLOCK_SIZE);
 
 	ctx.stroke();
 }
@@ -145,8 +153,8 @@ function drawBlock(iRowCounter, iBlockCounter) {
 function getImageCoords(pieceCode, bBlackTeam) {
 
 	var imageCoords =  {
-		"x": pieceCode * BLOCK_SIZE,
-		"y": (bBlackTeam ? 0 : BLOCK_SIZE)
+		"x": pieceCode * 100,
+		"y": (bBlackTeam ? 0 : 100)
 	};
 
 	return imageCoords;
@@ -159,7 +167,7 @@ function drawPiece(curPiece, bBlackTeam) {
 	// Draw the piece onto the canvas
 	ctx.drawImage(pieces,
 		imageCoords.x, imageCoords.y,
-		BLOCK_SIZE, BLOCK_SIZE,
+		100, 100,
 		curPiece.col * BLOCK_SIZE, curPiece.row * BLOCK_SIZE,
 		BLOCK_SIZE, BLOCK_SIZE);
 }
@@ -488,16 +496,23 @@ function board_click(ev) {
 }
 
 function draw() {
-	// Main entry point got the HTML5 chess board example
+	/// Main entry point got the HTML5 chess board example
 
-	canvas = document.getElementById('chess');
+     	canvas = document.getElementById('chess');
 
-	// Canvas supported?
-	if (canvas.getContext) {
-		ctx = canvas.getContext('2d');
+     	// Canvas supported?
+     	if (canvas.getContext) {
+             ctx = canvas.getContext('2d');
 
-		// Calculdate the precise block size
-		BLOCK_SIZE = canvas.height / NUMBER_OF_ROWS;
+             canvasCoef = screen.availHeight / HD_HEIGHT ;
+
+             if (canvas.height > screen.availHeight) {
+                 canvas.height = canvas.height * canvasCoef;
+                 canvas.width = canvas.width * canvasCoef;
+             }
+
+             // Calculate the precise block size
+             BLOCK_SIZE = canvas.height / NUMBER_OF_ROWS;
 
 		// Draw the background
 		drawBoard();

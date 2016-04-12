@@ -56,8 +56,6 @@ function screenToBlock(x, y) {
 }
 
 function getPieceAtBlockForTeam(teamOfPieces, clickedBlock) {
-    //alert(clickedBlock.row);
-    //alert(clickedBlock.col);
 
 	var curPiece = null,
 		iPieceCounter = 0,
@@ -106,7 +104,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: clickedBlock
     }
     var str = JSON.stringify(jsonToServer)
-    //alert(str);
+    alert(str);
     //sendToServer(jsonToServer);
     answer = {
         response: 'OK'                // TODO: Replace answer. This is cap
