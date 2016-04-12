@@ -142,6 +142,11 @@ function drawBlock(iRowCounter, iBlockCounter) {
 	// Draw rectangle for the background
 	ctx.fillRect(iRowCounter * BLOCK_SIZE, iBlockCounter * BLOCK_SIZE,
 	BLOCK_SIZE, BLOCK_SIZE);
+	ctx.lineWidth = 3;
+	ctx.strokeStyle = "#000000";
+    ctx.strokeRect(0, 0,
+    		NUMBER_OF_ROWS * BLOCK_SIZE,
+    		NUMBER_OF_COLS * BLOCK_SIZE);
 
 	ctx.stroke();
 }

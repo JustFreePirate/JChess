@@ -15,6 +15,6 @@ public class LoginServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/SignInAndSignUp.jsp").forward(request,response);
+        request.getRequestDispatcher("/auth.jsp").forward(request,response);
     }
 }
