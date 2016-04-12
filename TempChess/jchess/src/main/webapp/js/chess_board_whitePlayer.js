@@ -33,6 +33,17 @@ var PIECE_PAWN = 0,
 	selectedPiece = null;
 
 
+function convertToStdCoordinate(col,row){
+	if(col === 7) return 'H' + (8 - row);
+	if(col === 6) return 'G' + (8 - row);
+	if(col === 5) return 'F' + (8 - row);
+	if(col === 4) return 'E' + (8 - row);
+	if(col === 3) return 'D' + (8 - row);
+	if(col === 2) return 'C' + (8 - row);
+	if(col === 1) return 'B' + (8 - row);
+	if(col === 0) return 'A' + (8 - row);
+}
+
 function sendToServer(json){
  //   var req = new XMLHttpRequest();
     req.open("POST","home of server",false);
@@ -102,8 +113,8 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
     var jsonToServer;
     jsonToServer = {
         type: "Move",
-        from: selectedPiece,
-        to: clickedBlock
+		from: convertToStdCoordinate(selectedPiece.col,selectedPiece.row),
+		to: convertToStdCoordinate(clickedBlock.col, clickedBlock.row)
     }
     var str = JSON.stringify(jsonToServer)
     //alert(str);
