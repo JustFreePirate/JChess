@@ -10,7 +10,6 @@ var BLOCK_COLOUR_1 = '#f0d9b5',
 
 var canvasCoef = 1;
 var piecePositions = null;
-var req = new XMLHttpRequest();
 var answer;  // TODO: replace to JSON
 
 var PIECE_PAWN = 0,
@@ -24,13 +23,23 @@ var PIECE_PAWN = 0,
 	pieces = null,
 	ctx = null,
 	json = null,
-	jsonToServer = null,
 	canvas = null,
 	BLACK_TEAM = 0,
 	WHITE_TEAM = 1,
 	SELECT_LINE_WIDTH = 3,
 	currentTurn = WHITE_TEAM,
 	selectedPiece = null;
+
+function convertToBadCoordinate(coordinateFrom, coordinateTo){
+    /*if(coordinateFrom[0] === 'H') {selectedPiece.col = 7; selectedPiece.row = 8 - coordinateFrom[1]; selectedPiece.status = 0; selectedPiece.position = ???? }
+    if(coordinateFrom[0] === 'G') return
+    if(coordinateFrom[0] === 'F') return
+    if(coordinateFrom[0] === 'E') return
+    if(coordinateFrom[0] === 'D') return
+    if(coordinateFrom[0] === 'C') return
+    if(coordinateFrom[0] === 'B') return
+    if(coordinateFrom[0] === 'A') return*/
+}
 
 
 function convertToStdCoordinate(col,row){
@@ -45,16 +54,9 @@ function convertToStdCoordinate(col,row){
 }
 
 function sendToServer(json){
- //   var req = new XMLHttpRequest();
-    req.open("POST","home of server",false);
-    req.send(json);
-
-    req.onreadystatechange = function() {
-        if (req.readyState === 4 && req.status === 200){
-            answer =  JSON.parse(req.responseText);
-        }
-        else return;
-    }
+    $.post('main',json,function(data){
+        answer = data;
+    })
 }
 
 function screenToBlock(x, y) {
@@ -89,19 +91,13 @@ function getPieceAtBlockForTeam(teamOfPieces, clickedBlock) {
 	return pieceAtBlock;
 }
 
-function blockOccupiedByEnemy(clickedBlock) {
-	return getPieceAtBlockForTeam(json.black, clickedBlock);
+function blockOccupiedByEnemy(clickedBlock, team) {
+	return getPieceAtBlockForTeam(team, clickedBlock);
 }
 
 
 function blockOccupied(clickedBlock) {
-	//var pieceAtBlock = getPieceAtBlockForTeam(json.black, clickedBlock);
-
-	//if (pieceAtBlock === null) {
-		pieceAtBlock = getPieceAtBlockForTeam(json.white, clickedBlock);
-	//}
-
-	return (pieceAtBlock !== null);
+	return (getPieceAtBlockForTeam(json.white, clickedBlock) !== null);
 }
 
 
@@ -115,7 +111,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 		to: convertToStdCoordinate(clickedBlock.col, clickedBlock.row)
     }
     var str = JSON.stringify(jsonToServer)
-    alert(str);
+    alert(JSON.stringify(selectedPiece) + ' ' + JSON.stringify(clickedBlock));
     //sendToServer(jsonToServer);
     answer = {
         response: 'OK'                // TODO: Replace answer. This is cap
@@ -125,9 +121,8 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
 }
 
-function getPieceAtBlock(clickedBlock) {
+function getPieceAtBlock(clickedBlock, team) {
 
-	var team = json.white;
 
 	return getPieceAtBlockForTeam(team, clickedBlock);
 }
@@ -249,15 +244,15 @@ function defaultPositions() {
 					"status": IN_PLAY
 				},
 				{
-					"piece": PIECE_KING,
-					"row": 0,
-					"col": 4,
-					"status": IN_PLAY
-				},
-				{
 					"piece": PIECE_QUEEN,
 					"row": 0,
 					"col": 3,
+					"status": IN_PLAY
+				},
+				{
+					"piece": PIECE_KING,
+					"row": 0,
+					"col": 4,
 					"status": IN_PLAY
 				},
 				{
@@ -348,15 +343,15 @@ function defaultPositions() {
 					"status": IN_PLAY
 				},
 				{
-					"piece": PIECE_KING,
-					"row": 7,
-					"col": 4,
-					"status": IN_PLAY
-				},
-				{
 					"piece": PIECE_QUEEN,
 					"row": 7,
 					"col": 3,
+					"status": IN_PLAY
+				},
+				{
+					"piece": PIECE_KING,
+					"row": 7,
+					"col": 4,
 					"status": IN_PLAY
 				},
 				{
@@ -441,8 +436,8 @@ function selectPiece(pieceAtBlock) {
 	selectedPiece = pieceAtBlock;
 }
 
-function checkIfPieceClicked(clickedBlock) {
-	var pieceAtBlock = getPieceAtBlock(clickedBlock);
+function checkIfPieceClicked(clickedBlock, team) {
+	var pieceAtBlock = getPieceAtBlock(clickedBlock, team);
 
 	if (pieceAtBlock !== null) {
 		selectPiece(pieceAtBlock);
@@ -454,10 +449,11 @@ function movePiece(clickedBlock, enemyPiece) {
 
 	drawBlock(selectedPiece.col, selectedPiece.row);
 
-	var //team = (currentTurn === WHITE_TEAM ? json.white : json.black),
-		team = json.white;
-		//opposite = (currentTurn !== WHITE_TEAM ? json.white : json.black);
-        opposite = json.black;
+	var team = json.white,
+		opposite = json.black;
+
+
+
 
 	team[selectedPiece.position].col = clickedBlock.col;
 	team[selectedPiece.position].row = clickedBlock.row;
@@ -475,29 +471,94 @@ function movePiece(clickedBlock, enemyPiece) {
 	selectedPiece = null;
 }
 
+function movePieceForEnemy(clickedBlock, enemyPiece) {
+
+	drawBlock(selectedPiece.col, selectedPiece.row);
+
+	var team = json.black,
+		opposite = json.white;
+
+	team[selectedPiece.position].col = clickedBlock.col;
+	team[selectedPiece.position].row = clickedBlock.row;
+
+	if (enemyPiece !== null) {
+		// Clear the piece your about to take
+		drawBlock(enemyPiece.col, enemyPiece.row);
+		opposite[enemyPiece.position].status = TAKEN;
+	}
+	selectedPiece.col = clickedBlock.col;
+	selectedPiece.row = clickedBlock.row;
+	// Draw the piece in the new position
+	drawPiece(selectedPiece, WHITE_TEAM );
+
+
+	selectedPiece = null;
+
+}
+
 function processMove(clickedBlock) {
-	var pieceAtBlock = getPieceAtBlock(clickedBlock),
-		enemyPiece = blockOccupiedByEnemy(clickedBlock);
+	var pieceAtBlock = getPieceAtBlock(clickedBlock, json.white),
+		enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
 
 	if (pieceAtBlock !== null) {
 		removeSelection(selectedPiece);
-		checkIfPieceClicked(clickedBlock);
+		checkIfPieceClicked(clickedBlock, json.white);
 	} else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
 		movePiece(clickedBlock, enemyPiece);
+		currentTurn = BLACK_TEAM;
+		WaitingEnemyMove();
+		/*alert('add' + convertToStdCoordinate(selectedPiece.col,selectedPiece.row) + ' ' + 
+			convertToStdCoordinate(clickedBlock.col,clickedBlock.row));
+		addToTable(convertToStdCoordinate(selectedPiece.col,selectedPiece.row),
+			convertToStdCoordinate(clickedBlock.col,clickedBlock.row));*/
 	}
-	//WaitingEnemyMove();
+	
+
+}
+
+function processMoveForEnemy(clickedBlock) {
+	var pieceAtBlock = getPieceAtBlock(clickedBlock, json.black),
+		enemyPiece = blockOccupiedByEnemy(clickedBlock, json.white);
+
+	// if (pieceAtBlock !== null) {
+	// 	removeSelection(selectedPiece);
+	// 	checkIfPieceClicked(clickedBlock, json.black);
+	// } else {
+		movePieceForEnemy(clickedBlock, enemyPiece);
+		currentTurn = WHITE_TEAM;
+		/*alert('add' + convertToStdCoordinate(selectedPiece.col,selectedPiece.row) + ' ' +
+			convertToStdCoordinate(clickedBlock.col,clickedBlock.row));
+		addToTable(convertToStdCoordinate(selectedPiece.col,selectedPiece.row),
+			convertToStdCoordinate(clickedBlock.col,clickedBlock.row));*/
+	//}
 }
 
 function WaitingEnemyMove(){
     alert('rara');
-	req.open('GET','home of server',false);
-	req.send('Waiting');
-    req.onreadystatechange = function() {
-            if (req.readyState === 4 && req.status === 200){
-                answer =  JSON.parse(req.responseText);
-            }
-            else return;
-        }
+	//TODO: Block board
+	/*$.post('main',{action: 'Waiting'},function(data){
+		//TODO: Unlock board and move
+		selectedPiece = convertToBadCoordinate(data.from);
+		processMoveForEnemy(convertToBadCoordinate(data.to));
+	});*/
+	selectedPiece = {
+		piece: 2,
+		row: 0,
+		col: 6,
+		position: 1,
+		status: 0
+	};
+	/*selectedPiece.piece = 2;
+	selectedPiece.row = 0;
+	selectedPiece.col = 6;
+	selectedPiece.position = 1;
+	selectedPiece.status = 0;*/
+	var clickedBlock = {
+		row: 6,
+		col: 6
+	}
+	processMoveForEnemy(clickedBlock);
+	
 }
 
 function board_click(ev) {
@@ -506,10 +567,35 @@ function board_click(ev) {
 		clickedBlock = screenToBlock(x, y);
 
 	if (selectedPiece === null) {
-		checkIfPieceClicked(clickedBlock);
+		checkIfPieceClicked(clickedBlock, json.white);
 	} else {
+        
 		processMove(clickedBlock);
 	}
+
+}
+
+function addToTable(selectedBlock, moveBlock, currentColor) {
+	if(currentColor === 'white'){
+		var table = document.getElementById("table");
+		var row = table.insertRow(table.length);
+		var cell = row.insertCell(0);
+		cell.innerHTML = selectedBlock + ' - ' + moveBlock;
+	} else
+		if(currentColor === 'black'){
+			var table = document.getElementById("table");
+			var row = table.insertRow(table.length);
+			var cell = row.insertCell(1);
+			cell.innerHTML = selectedBlock + ' - ' + moveBlock;
+		} else {
+			var table = document.getElementById("table");
+			var row = table.insertRow(table.length);
+			var cell1 = row.insertCell(1);
+			var cell2 = row.insertCell(0);
+			cell1.innerHTML = 'Error';
+			cell2.innerHTML = 'Error';
+		}
+
 
 }
 
@@ -546,6 +632,7 @@ function draw() {
 
 
 		canvas.addEventListener('click', board_click, false);
+
 	} else {
 		alert("Canvas not supported!");
 	}

@@ -45,16 +45,9 @@ function convertToStdCoordinate(col,row){
 }
 
 function sendToServer(json){
- //   var req = new XMLHttpRequest();
-    req.open("POST","/game",true);
-    req.send(json);
-
-    req.onreadystatechange = function() {
-        if (req.readyState === 4 && req.status === 200){
-            answer =  JSON.parse(req.responseText);
-        }
-        else return;
-    }
+    $.post('main',json,function(data){
+        answer = data;
+    })
 }
 
 function screenToBlock(x, y) {
