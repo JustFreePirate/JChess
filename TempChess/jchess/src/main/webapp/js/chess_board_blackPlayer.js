@@ -32,16 +32,26 @@ var PIECE_PAWN = 0,
 	//currentTurn = WHITE_TEAM,
 	selectedPiece = null;
 
+function convertToBadCoordinate(coordinate){
+	if(coordinate[0] === 'H') return getPieceAtBlock({row: coordinate[1] - 1, col: 0},json.black);
+	if(coordinate[0] === 'G') return getPieceAtBlock({row: coordinate[1] - 1, col: 1},json.black);
+	if(coordinate[0] === 'F') return getPieceAtBlock({row: coordinate[1] - 1, col: 2},json.black);
+	if(coordinate[0] === 'E') return getPieceAtBlock({row: coordinate[1] - 1, col: 3},json.black);
+	if(coordinate[0] === 'D') return getPieceAtBlock({row: coordinate[1] - 1, col: 4},json.black);
+	if(coordinate[0] === 'C') return getPieceAtBlock({row: coordinate[1] - 1, col: 5},json.black);
+	if(coordinate[0] === 'B') return getPieceAtBlock({row: coordinate[1] - 1, col: 6},json.black);
+	if(coordinate[0] === 'A') return getPieceAtBlock({row: coordinate[1] - 1, col: 7},json.black);
+}
 
-function convertToStdCoordinate(col,row){
-	if(col === 0) return 'H' + (row+1);
-	if(col === 1) return 'G' + (row+1);
-	if(col === 2) return 'F' + (row+1);
-	if(col === 3) return 'E' + (row+1);
-	if(col === 4) return 'D' + (row+1);
-	if(col === 5) return 'C' + (row+1);
-	if(col === 6) return 'B' + (row+1);
-	if(col === 7) return 'A' + (row+1);
+function convertToStdCoordinate(coordinate){
+	if(coordinate.col === 0) return 'H' + (coordinate.row+1);
+	if(coordinate.col === 1) return 'G' + (coordinate.row+1);
+	if(coordinate.col === 2) return 'F' + (coordinate.row+1);
+	if(coordinate.col === 3) return 'E' + (coordinate.row+1);
+	if(coordinate.col === 4) return 'D' + (coordinate.row+1);
+	if(coordinate.col === 5) return 'C' + (coordinate.row+1);
+	if(coordinate.col === 6) return 'B' + (coordinate.row+1);
+	if(coordinate.col === 7) return 'A' + (coordinate.row+1);
 }
 
 function sendToServer(json){
@@ -82,9 +92,7 @@ function getPieceAtBlockForTeam(teamOfPieces, clickedBlock) {
 	return pieceAtBlock;
 }
 
-function blockOccupiedByEnemy(clickedBlock) {
-	var team = json.white;
-
+function blockOccupiedByEnemy(clickedBlock, team) {
 	return getPieceAtBlockForTeam(team, clickedBlock);
 }
 
@@ -118,10 +126,8 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
 }
 
-function getPieceAtBlock(clickedBlock) {
-
-	var team = json.black;
-
+function getPieceAtBlock(clickedBlock, team) {
+	
 	return getPieceAtBlockForTeam(team, clickedBlock);
 }
 
@@ -433,8 +439,8 @@ function selectPiece(pieceAtBlock) {
 	selectedPiece = pieceAtBlock;
 }
 
-function checkIfPieceClicked(clickedBlock) {
-	var pieceAtBlock = getPieceAtBlock(clickedBlock);
+function checkIfPieceClicked(clickedBlock, team) {
+	var pieceAtBlock = getPieceAtBlock(clickedBlock, team);
 
 	if (pieceAtBlock !== null) {
 		selectPiece(pieceAtBlock);
@@ -463,29 +469,93 @@ function movePiece(clickedBlock, enemyPiece) {
 	selectedPiece = null;
 }
 
+function movePieceForEnemy(clickedBlock, enemyPiece) {
+
+	drawBlock(selectedPiece.col, selectedPiece.row);
+
+	var team = json.white,
+		opposite = json.black;
+
+	team[selectedPiece.position].col = clickedBlock.col;
+	team[selectedPiece.position].row = clickedBlock.row;
+
+	if (enemyPiece !== null) {
+		// Clear the piece your about to take
+		drawBlock(enemyPiece.col, enemyPiece.row);
+		opposite[enemyPiece.position].status = TAKEN;
+	}
+	selectedPiece.col = clickedBlock.col;
+	selectedPiece.row = clickedBlock.row;
+	// Draw the piece in the new position
+	drawPiece(selectedPiece, BLACK_TEAM );
+
+
+	selectedPiece = null;
+
+}
+
 function processMove(clickedBlock) {
-	var pieceAtBlock = getPieceAtBlock(clickedBlock),
-		enemyPiece = blockOccupiedByEnemy(clickedBlock);
+	var pieceAtBlock = getPieceAtBlock(clickedBlock, json.black),
+		enemyPiece = blockOccupiedByEnemy(clickedBlock, json.white);
 
 	if (pieceAtBlock !== null) {
 		removeSelection(selectedPiece);
-		checkIfPieceClicked(clickedBlock);
+		checkIfPieceClicked(clickedBlock, json.black);
 	} else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
 		movePiece(clickedBlock, enemyPiece);
 	}
-	//WaitingEnemyMove();
+	WaitingEnemyMove();
+}
+
+function processMoveForEnemy(clickedBlock) {
+	var enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
+
+	movePieceForEnemy(clickedBlock, enemyPiece);
+	currentTurn = WHITE_TEAM;
 }
 
 function WaitingEnemyMove(){
-	req.open('GET','home of server',false);
-	req.send('Waiting');
-    req.onreadystatechange = function() {
-            if (req.readyState === 4 && req.status === 200){
-                answer =  JSON.parse(req.responseText);
-            }
-            else return;
-        }
+	//TODO: Block board
+	/*$.post('main',{action: 'Waiting'},function(data){
+	 //TODO: Unlock board and move
+	 selectedPiece = convertToBadCoordinate(data.from);
+	 processMoveForEnemy(convertToBadCoordinate(data.to));
+	 });*/
+	selectedPiece = {
+		piece: 2,
+		row: 0,
+		col: 6,
+		position: 1,
+		status: 0
+	};
+	/*selectedPiece.piece = 2;
+	 selectedPiece.row = 0;
+	 selectedPiece.col = 6;
+	 selectedPiece.position = 1;
+	 selectedPiece.status = 0;*/
+	var clickedBlock = {
+		row: 6,
+		col: 6
+	}
+	processMoveForEnemy(clickedBlock);
+
 }
+
+function addToTable(selectedBlock, moveBlock, currentColor) {
+	var table = document.getElementById('table');
+
+	if (currentColor === 'white') {
+		var row = table.insertRow(table.length);
+		var cell1 = row.insertCell(0);
+		cell1.innerHTML = selectedBlock + ' - ' + moveBlock;
+	}
+	if (currentColor === 'black') {
+		var row = table.insertRow(table.length);
+		var cell2 = row.insertCell(1);
+		cell2.innerHTML = selectedBlock + ' - ' + moveBlock;
+	}
+}
+
 
 function board_click(ev) {
 	var x = ev.clientX - canvas.offsetLeft,
@@ -493,7 +563,7 @@ function board_click(ev) {
 		clickedBlock = screenToBlock(x, y);
 
 	if (selectedPiece === null) {
-		checkIfPieceClicked(clickedBlock);
+		checkIfPieceClicked(clickedBlock,json.black);
 	} else {
 		processMove(clickedBlock);
 	}
@@ -529,6 +599,7 @@ function draw() {
 		pieces.onload = drawPieces;
 
 		canvas.addEventListener('click', board_click, false);
+			
 	} else {
 		alert("Canvas not supported!");
 	}

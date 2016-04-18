@@ -67,7 +67,7 @@
                 <version>2.1.1</version>
                 <configuration>
 
-                    <outputDirectory>/home/dima/glassfish4/glassfish/domains/domain1/autodeploy</outputDirectory>
+                    <outputDirectory>C:\glassfish4\glassfish\domains\domain1\autodeploy</outputDirectory>
                 </configuration>
             </plugin>
             <plugin>
