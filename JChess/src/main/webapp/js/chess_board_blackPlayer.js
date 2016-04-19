@@ -28,7 +28,7 @@ var PIECE_PAWN = 0,
 	BLACK_TEAM = 0,
 	WHITE_TEAM = 1,
 	SELECT_LINE_WIDTH = 3,
-	currentTurn = BLACK_TEAM,  //TODO: Remove this. Need for testing.
+	currentTurn = WHITE_TEAM,  //TODO: Remove this. Need for testing.
 	//currentTurn = WHITE_TEAM,
 	selectedPiece = null;
 
@@ -112,11 +112,12 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
     var jsonToServer;
     jsonToServer = {
         action: "move",
-        from: convertToStdCoordinate(selectedPiece.col,selectedPiece.row),
-        to: convertToStdCoordinate(clickedBlock.col, clickedBlock.row)
+        from: convertToStdCoordinate(selectedPiece),
+        to: convertToStdCoordinate(clickedBlock)
     }
-    sendToServer(jsonToServer);
-    return(answer.response === 'correct');
+    //sendToServer(jsonToServer);
+	answer = 'correct';
+    return(answer === 'correct');
 
 
 }
@@ -194,6 +195,7 @@ function drawTeamOfPieces(teamOfPieces, bBlackTeam) {
 function drawPieces() {
 	drawTeamOfPieces(json.black, true);
 	drawTeamOfPieces(json.white, false);
+	WaitingEnemyMove();
 }
 
 function drawRow(iRowCounter) {
@@ -511,24 +513,24 @@ function processMoveForEnemy(clickedBlock) {
 }
 
 function WaitingEnemyMove(){
-	//TODO: Block board
+	/*//TODO: Block board
 	$.post('game',{action: 'getEnemyMove'},function(data){
 	    //TODO: Unlock board
 	    var move = JSON.parse(data);
 	    selectedPiece = convertToBadCoordinate(move.from);
 	    processMoveForEnemy(convertToBadCoordinate(move.to));
-	 });
-	/*selectedPiece = {
+	 });*/
+	selectedPiece = {
 		piece: 2,
 		row: 0,
 		col: 6,
-		position: 1,
+		position: 6,
 		status: 0
 	};
 	var clickedBlock = {
 		row: 6,
 		col: 6
-	}*/
+	}
 	processMoveForEnemy(clickedBlock);
 
 }
@@ -590,9 +592,10 @@ function draw() {
 		pieces.src = 'pieces.png';
 		pieces.onload = drawPieces;
 
-		canvas.addEventListener('click', board_click, false);
 			
-	} else {
+			
+		canvas.addEventListener('click', board_click, false);
+		} else {
 		alert("Canvas not supported!");
 	}
 }

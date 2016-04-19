@@ -53,8 +53,8 @@ function convertToStdCoordinate(coordinate) {
     if (coordinate.col === 0) return 'A' + (8 - coordinate.row);
 }
 
-function sendToServer(json) {
-    $.post('main', json, function (data) {
+function sendToServer(json){
+    $.post('game',json,function(data){
         answer = data;
     })
 }
@@ -105,16 +105,13 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
     var jsonToServer;
     jsonToServer = {
-        type: "Move",
+        action: "move",
         from: convertToStdCoordinate(selectedPiece),
         to: convertToStdCoordinate(clickedBlock)
     }
-    var str = JSON.stringify(jsonToServer)
     //sendToServer(jsonToServer);
-    answer = {
-        response: 'OK'                // TODO: Replace answer. This is cap
-    }
-    return (answer.response === 'OK');
+    answer = 'correct';
+    return(answer === 'correct');
 
 
 }
@@ -502,6 +499,7 @@ function processMove(clickedBlock) {
             convertToStdCoordinate(clickedBlock));
         addToTable(convertToStdCoordinate(selectedPiece),
             convertToStdCoordinate(clickedBlock), 'white');
+        answer = '';
         movePiece(clickedBlock, enemyPiece);
         currentTurn = BLACK_TEAM;
         WaitingEnemyMove();
@@ -512,30 +510,30 @@ function processMove(clickedBlock) {
 
 function processMoveForEnemy(clickedBlock) {
     var enemyPiece = blockOccupiedByEnemy(clickedBlock, json.white);
-    //addToTable(convertToStdCoordinate(selectedPiece), convertToStdCoordinate(clickedBlock), 'black');
+    addToTable(convertToStdCoordinate(selectedPiece), convertToStdCoordinate(clickedBlock), 'black');
     movePieceForEnemy(clickedBlock, enemyPiece);
     currentTurn = WHITE_TEAM;
 }
 
-function WaitingEnemyMove() {
+function WaitingEnemyMove(){
     //TODO: Block board
-    /*$.post('main',{action: 'Waiting'},function(data){
-     //TODO: Unlock board and move
-     selectedPiece = convertToBadCoordinate(data.from);
-     processMoveForEnemy(convertToBadCoordinate(data.to));
-     });*/
+    /*$.post('game',{action: 'getEnemyMove'},function(data){
+        //TODO: Unlock board
+        var move = JSON.parse(data);
+        selectedPiece = convertToBadCoordinate(move.from);
+        processMoveForEnemy(convertToBadCoordinate(move.to));
+    });*/
     selectedPiece = {
-        piece: 2,
-        row: 0,
-        col: 6,
-        position: 1,
-        position: 1,
-        status: 0
-    };
+         piece: 2,
+         row: 0,
+         col: 6,
+         position: 1,
+         status: 0
+     };
     var clickedBlock = {
         row: 6,
-        col: 6
-    }
+     col: 6
+     }
     processMoveForEnemy(clickedBlock);
 
 }
@@ -556,18 +554,19 @@ function board_click(ev) {
 }
 
 function addToTable(selectedBlock, moveBlock, currentColor) {
-    var table = document.getElementById('table');
+    var table = document.getElementById('table').getElementsByTagName('tbody')[0];
     
     if (currentColor === 'white') {
-        var row = table.insertRow(table.length);
+        var row = table.insertRow(table.rows.length );
         var cell1 = row.insertCell(0);
         cell1.innerHTML = selectedBlock + ' - ' + moveBlock;
     }
     if (currentColor === 'black') {
-        var row = table.insertRow(table.length);
+        var row = table.rows.item(table.rows.length - 1);
         var cell2 = row.insertCell(1);
         cell2.innerHTML = selectedBlock + ' - ' + moveBlock;
     }
+    document.getElementById('table').rows.item(table.rows.length - 1).scrollIntoView(true);
 
 
 }
@@ -604,6 +603,7 @@ function draw() {
 
 
         canvas.addEventListener('click', board_click, false);
+        
 
     } else {
         alert("Canvas not supported!");
