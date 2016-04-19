@@ -9,7 +9,6 @@ public class Move {
     private Cell from;
     private Cell to;
 
-    private Move () {}
     private Move (Person person, Decision decision, Cell from, Cell to) {
         this.person = person;
         this.decision = decision;
@@ -24,7 +23,12 @@ public class Move {
     static Move giveUp (Person person){
         return new Move(person, Decision.GIVE_UP, null, null);
     }
-    //TODO: Castling    //Рокировка
+    static Move castlingLong (Person person) {
+        return new Move (person, Decision.CASTLING_LONG, null, null);
+    }
+    static Move castlingShort (Person person) {
+        return new Move (person, Decision.CASTLING_SHORT, null, null);
+    }
     //TODO: En passant  //Взятие на проходе
     //TODO: Promotion   //Превращение пешки
     //TODO:             //Игрок просрочил время

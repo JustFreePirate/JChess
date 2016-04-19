@@ -1,22 +1,15 @@
 $(document).ready(function(){
     $('Search').on('click',function(){
-        var req = new XMLHttpRequest();
-        var data = {
-            Type: 'Search'
+        var dataToServer = {
+            active: 'search'
         }
-        req.open("POST","home of server",true);
-        req.send(data);
-        req.onreadystatechange = function(){
-            if(req.readyState === 4 && req.status === 200){
-                var answer = JSON.parse(req.responseText);
-                if(answer.color === 'white'){
-                    window.location.href = '/jchess/whiteBoard.jsp';
-                }
-                if(answer.color === 'black'){
-                    window.location.href = '/jchess/blackBoard.jsp';
-                }
+        $.post('main',dataToServer,function(data){
+            if(data.color === 'white'){
+                window.location.href = '/jchess/whiteBoard.jsp';
             }
-            else {return;}
-        }
+            if(data.color === 'black'){
+                window.location.href = '/jchess/blackBoard.jsp';
+            }
+        });
     })
 })

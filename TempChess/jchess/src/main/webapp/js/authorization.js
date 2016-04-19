@@ -1,67 +1,64 @@
 $(document).ready(function(){
 
     $('#SignIn').on('click', function(){
+        /*var login = $('#loginSignIn');
+        var password = $('#passwordSignIn');
+        alert(login.value + ' ' + password.value);*/
         var login = document.getElementById('loginSignIn');
         var password = document.getElementById('passwordSignIn');
-        var req = new XMLHttpRequest();
-        var data = {
-            type: 'SignIn',
+
+        var dataToServer = {
+            action: 'SignIn',
             login: login.value,
             password: password.value
         }
-        var str = JSON.stringify(data);
-        alert(str);
-        req.open("POST",'/main',true);
-        req.send(data);
-        req.onreadystatechange = function() {
-            if (req.readyState === 4 && req.status === 200){
-                answer =  JSON.parse(req.responseText);
-            }
-                else return;
-        }
-        if(answer.response === 'Ok'){
-            window.location.href = '/jchess/main.jsp';
-        } else {
-            alert('Incorrect login/password');
-        }
+        if(dataToServer.login != '' && dataToServer.password != ''){
+            $.post('main', $.param(dataToServer), function(data){
+                    if(data === 'correct'){
+                        window.location.href = '/jchess/main.jsp';
+                    } else {
+                        alert('Incorrect login/password');
+                        //TODO: Replace alert
+                    }
 
+            });
+        }
     });
 
     $('#SignUp').on('click',function(){
-        var login = document.getElementById('loginSignUp');
-        var password = document.getElementById('passwordSignUp');
+/*        var login = $('#loginSignUp');
+        var password = $('#passwordSignUp');
+        var repeatPassword = $('#repeatPasswordSignUp');*/
+        var login = document.getElementById('loginSignIn');
+        var password = document.getElementById('passwordSignIn');
         var repeatPassword = document.getElementById('repeatPasswordSignUp');
         if(password.value === repeatPassword.value){
-            var req = new XMLHttpRequest();
-            var data = {
-                type: 'SignUp',
+            var dataToServer = {
+                action: 'SignUp',
                 login: login.value,
                 password: password.value
             }
-            var str = JSON.stringify(data);
-            alert(str);
-            /*req.open("POST","home of server",true);
-            req.send(data);
-            req.onreadystatechange = function() {
-                if (req.readyState === 4 && req.status === 200){
-                    answer =  JSON.parse(req.responseText);
-                }
-                    else return;
+            if(dataToServer.login != '' && dataToServer.password != ''){
+                $.post('main',dataToServer,function(data){
+                    if(data === 'correct'){
+                        window.location.href = '/jchess/main.jsp';
+                    } else {
+                        alert('Trouble');
+                    }
+                })
             }
-            if(answer === 'Ok'){
-                //TODO: GOTO to next jsp
-            }*/
         } else {
             alert('Passwords is not equal');
+            //TODO: Replace alert
         }
     })
 
     $('.toggle').on('click', function() {
-      $('.container').stop().addClass('active');
+        $('.container').stop().addClass('active');
     });
 
     $('.close').on('click', function() {
-      $('.container').stop().removeClass('active');
+        $('.container').stop().removeClass('active');
     });
 
 });

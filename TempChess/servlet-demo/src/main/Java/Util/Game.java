@@ -1,5 +1,6 @@
 package Util;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Sergey on 18.03.2016.
@@ -16,11 +17,6 @@ public class Game {
     private boolean castlingPerson1;    //Пользовался игрок ли рокировкой?
     private boolean castlingPerson2;
 
-    // "Состояния" игры
-    //private Color checkmate;  // Мат
-    //private Color check;      // Шах
-    //private Color stalemate;  // Пат
-
     // Результат игры
     private boolean isGameOver;
     private boolean win;                //Победа одной из сторон
@@ -31,24 +27,15 @@ public class Game {
 
     private ChessPiece[] board;         //Доска
     private Deque<Move> history;
-//
-//    private Set<Cell> whiteFigure;
-//    private Set<Cell> blackFigure;
-//    private Cell coordKingWhite = Cell.E1;
-//    private Cell coordKingBlack = Cell.E8;
-
 
     Game (Person person1, Person person2) {
         this.person1 = person1;
         this.person2 = person2;
 
-        //whiteFigure =  new LinkedHashSet<Cell>();
-        //blackFigure =  new LinkedHashSet<Cell>();
-
         colorPerson1 = Color.WHITE;
         colorPerson2 = Color.BLACK;
 
-        history = new ArrayDeque<Move>();
+        history = new ArrayDeque<>();
 
         initializeBoard();
     }
@@ -62,9 +49,10 @@ public class Game {
                 Color myColor =  board[move.getFrom().ordinal()].getColor();
                 Color enColor = myColor.equals(Color.BLACK) ? Color.WHITE : Color.BLACK;
 
-                board = step(board.clone(), move); //TODO
+                board = step(board.clone(), move);
 
                 if (checkStalemate(board).equals(enColor)){
+                    draw = true;
                     isGameOver = true;
                 }
                 if (checkCheckmate(board).equals(enColor)){
@@ -79,6 +67,9 @@ public class Game {
                 isGameOver = true;
                 history.add(move);
                 break;
+
+            case CASTLING_LONG: case CASTLING_SHORT:
+                checkCastling(move);
 
             default:
                 break;
@@ -112,7 +103,77 @@ public class Game {
         return true;
     }
 
+    private boolean checkCastling(Move move){
+        Color personColor = getColorOfPerson(move.getPerson());
 
+        //Если король под шахом -- не ок
+        if (checkCheck(board) == personColor)
+            throw new RuntimeException("Your king under attack");
+
+
+        if (personColor == Color.WHITE){
+            if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.E1))
+                throw new RuntimeException("King has already done step");
+            switch (move.getDecision()){
+                case CASTLING_SHORT:
+                    if (getCellColor(board, Cell.F1) != Color.None ||
+                            getCellColor(board, Cell.G1) != Color.None)
+                        throw new RuntimeException(""); //TODO: поля не свободны
+
+                    if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.H1))
+                        throw new RuntimeException("Rook has already done step");
+
+                    //TODO: поле справа не под шахом
+                    break;
+
+                case CASTLING_LONG:
+                    if (getCellColor(board, Cell.B1) != Color.None ||
+                            getCellColor(board, Cell.C1) != Color.None ||
+                            getCellColor(board, Cell.D1) != Color.None)
+                        throw new RuntimeException(""); //TODO: поля не свободны
+
+                    if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.A1))
+                        throw new RuntimeException("Rook has already done step");
+
+                    //TODO: поле справа не под шахом
+                    break;
+                default: throw new RuntimeException("Unknown castling");
+            }
+        } else {
+            if (! history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.E8))
+                throw new RuntimeException("Todo"); //TODO "Король уже сделал ход"
+            switch (move.getDecision()){
+                case CASTLING_SHORT:
+                    if (getCellColor(board, Cell.F8) != Color.None || getCellColor(board, Cell.G8) != Color.None)
+                        throw new RuntimeException("King has already done step");
+
+                    if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.H8))
+                        throw new RuntimeException("Rook has already done step");
+
+                    //TODO: поле справа не под шахом
+                    break;
+
+                case CASTLING_LONG:
+                    if (getCellColor(board, Cell.B8) != Color.None ||
+                            getCellColor(board, Cell.C8) != Color.None ||
+                            getCellColor(board, Cell.D8) != Color.None)
+                        throw new RuntimeException(""); //TODO: поля не свободны
+
+                    //TODO: поле справа не под шахом
+
+                    if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.A8))
+                        throw new RuntimeException("Rook has already done step");
+                    break;
+                default: throw new RuntimeException("Unknown castling");
+            }
+        }
+
+        return true;
+    }
+
+    private Color getColorOfPerson (Person person){
+        return person == person1 ? colorPerson1 : colorPerson2;
+    }
     private boolean isSameColor (ChessPiece[] board, Cell cell1, Cell cell2) {
         return board[cell1.ordinal()].getColor() == board[cell2.ordinal()].getColor();
     }
@@ -127,7 +188,7 @@ public class Game {
     }
     private Set<Cell> stepWhile(ChessPiece[] board, Cell cell, int x, int y){
         Color color = board[cell.ordinal()].getColor();
-        Set<Cell> cells = new LinkedHashSet<Cell>();
+        Set<Cell> cells = new LinkedHashSet<>();
 
         try {
             while(board[cell.go(x,y).ordinal()] == ChessPiece.n){ //Шагаем, пока на пути пусто. И добавляем в cells
@@ -143,8 +204,8 @@ public class Game {
         return cells;
     }
     private Set<Cell> getAvailableKingMove (ChessPiece[] board, Cell cell) {
-        Set<Cell> avaliableMove =  new LinkedHashSet<Cell>();
-        Set<Cell> cells = new LinkedHashSet<Cell>();
+        Set<Cell> avaliableMove =  new LinkedHashSet<>();
+        Set<Cell> cells = new LinkedHashSet<>();
 
         cells.add(cell.go(1,1));
         cells.add(cell.go(1,0));
@@ -165,13 +226,13 @@ public class Game {
         return avaliableMove;
     }
     private Set<Cell> getAvailableQueenMove (ChessPiece[] board, Cell cell) {
-        Set<Cell> avaliableMove = new LinkedHashSet<Cell>();
+        Set<Cell> avaliableMove = new LinkedHashSet<>();
         avaliableMove.addAll(getAvailableBishopMove(board, cell));
         avaliableMove.addAll(getAvailableRookMove(board, cell));
         return avaliableMove;
     }
     private Set<Cell> getAvailableRookMove (ChessPiece[] board, Cell cell) {
-        Set<Cell> avaliableMove = new LinkedHashSet<Cell>();
+        Set<Cell> avaliableMove = new LinkedHashSet<>();
 
         avaliableMove.addAll(stepWhile(board, cell, 1, 0));
         avaliableMove.addAll(stepWhile(board, cell, 0, 1));
@@ -275,13 +336,28 @@ public class Game {
         return getAvailableMove(this.board, cell);
     }
 
-//    private Person getPersonOfColor (Color color){
-//        return colorPerson1 == color ? person1 : person2;
-//    }
-    private Color getColorOfPerson (Person person){
-        return person == person1 ? colorPerson1 : colorPerson2;
-    }
+    private Color checkCell (ChessPiece[] board, Cell cell) {
+        Set<Cell> attackWhile =  new LinkedHashSet<>();
+        Set<Cell> attackfBlack =  new LinkedHashSet<>();
 
+        Set<Cell> whiteFigure = findFigure(board, Color.WHITE);
+        Set<Cell> blackFigure = findFigure(board, Color.BLACK);
+
+        for(Cell c : whiteFigure){
+            attackWhile.addAll(getAvailableMove(board, c));
+        }
+        for(Cell c : blackFigure){
+            attackfBlack.addAll(getAvailableMove(board, c));
+        }
+
+        if(attackWhile.contains(cell)){
+            return Color.WHITE;
+        } else if(attackfBlack.contains(cell)){
+            return Color.BLACK;
+        } else {
+            return Color.None;
+        }
+    }
     private Color checkCheckmate (ChessPiece[] board) {
         Color color = checkCheck(board);
         if (color.equals(Color.None)) return Color.None;
@@ -291,30 +367,19 @@ public class Game {
         return aMoves.stream().map(mov -> checkCheck(step(board.clone(), mov))).allMatch(col -> col == color) ? color : Color.None;
     }
     private Color checkCheck (ChessPiece[] board) {
-        Set<Cell> attackWhile =  new LinkedHashSet<Cell>();
-        Set<Cell> attackfBlack =  new LinkedHashSet<Cell>();
+        Cell coordKingWhite = (Cell) findFigure(board, Color.WHITE).stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KW)).toArray()[0];
+        Cell coordKingBlack = (Cell) findFigure(board, Color.BLACK).stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KB)).toArray()[0];
 
-        Set<Cell> whiteFigure = findFigure(board, Color.WHITE);
-        Set<Cell> blackFigure = findFigure(board, Color.BLACK);
-
-        Cell coordKingWhite = (Cell) whiteFigure.stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KW)).toArray()[0];
-        Cell coordKingBlack = (Cell) blackFigure.stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KB)).toArray()[0];
-
-        for(Cell cell : whiteFigure){
-            attackWhile.addAll(getAvailableMove(board, cell));
-        }
-        for(Cell cell : blackFigure){
-            attackfBlack.addAll(getAvailableMove(board, cell));
-        }
-
-        if(attackWhile.contains(coordKingBlack)){
-            return Color.BLACK;
-        } else if(attackfBlack.contains(coordKingWhite)){
+        //System.out.println(checkCell(board, coordKingBlack));
+        if(checkCell(board, coordKingWhite) == Color.BLACK){
             return Color.WHITE;
+        } else if(checkCell(board, coordKingBlack) == Color.WHITE){
+            return Color.BLACK;
         } else {
             return Color.None;
         }
     }
+
     private Color checkStalemate (ChessPiece[] board) {
         if (!checkCheck(board).equals(Color.None)) return Color.None;
 
@@ -330,7 +395,7 @@ public class Game {
         return board[cell.ordinal()].getColor();
     }
     private Set<Cell> findFigure(ChessPiece[] board, Color color) {
-        Set<Cell> figure = new LinkedHashSet<Cell>();
+        Set<Cell> figure = new LinkedHashSet<>();
 
         for (Cell cell : Cell.values()){
             if(getCellColor(board,cell) == color){
@@ -352,9 +417,7 @@ public class Game {
 
         for(Cell from : myFigure){
             Set<Cell> tos = getAvailableMove(board, from);
-            for (Cell to : tos){
-                moves.add(Move.goFromTo(person1,from,to));
-            }
+            moves.addAll(tos.stream().map(to -> Move.goFromTo(person1, from, to)).collect(Collectors.toList()));
         }
         return moves;
     }
@@ -365,7 +428,7 @@ public class Game {
 
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
-                builder.append("\t" + board[i*8 + j].toString());
+                builder.append("\t").append(board[i*8 + j].toString());
             }
             builder.append("\n");
         }
@@ -418,5 +481,8 @@ public class Game {
     }
     public Person getWinner (){
         return winner;
+    }
+    public boolean isDraw() {
+        return draw;
     }
 }
