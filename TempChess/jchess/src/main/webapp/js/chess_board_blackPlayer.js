@@ -55,7 +55,7 @@ function convertToStdCoordinate(coordinate){
 }
 
 function sendToServer(json){
-    $.post('main',json,function(data){
+    $.post('game',json,function(data){
         answer = data;
     })
 }
@@ -111,17 +111,12 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
     var jsonToServer;
     jsonToServer = {
-        type: "Move",
+        action: "move",
         from: convertToStdCoordinate(selectedPiece.col,selectedPiece.row),
         to: convertToStdCoordinate(clickedBlock.col, clickedBlock.row)
     }
-    var str = JSON.stringify(jsonToServer)
-    alert(str);
-    //sendToServer(jsonToServer);
-    answer = {
-        response: 'Ok'               // TODO: Replace answer. This is cap
-    }
-    return(answer.response === 'Ok');
+    sendToServer(jsonToServer);
+    return(answer.response === 'correct');
 
 
 }
@@ -502,6 +497,7 @@ function processMove(clickedBlock) {
 		removeSelection(selectedPiece);
 		checkIfPieceClicked(clickedBlock, json.black);
 	} else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
+		answer = '';
 		movePiece(clickedBlock, enemyPiece);
 	}
 	WaitingEnemyMove();
@@ -516,27 +512,23 @@ function processMoveForEnemy(clickedBlock) {
 
 function WaitingEnemyMove(){
 	//TODO: Block board
-	/*$.post('main',{action: 'Waiting'},function(data){
-	 //TODO: Unlock board and move
-	 selectedPiece = convertToBadCoordinate(data.from);
-	 processMoveForEnemy(convertToBadCoordinate(data.to));
-	 });*/
-	selectedPiece = {
+	$.post('game',{action: 'getEnemyMove'},function(data){
+	    //TODO: Unlock board
+	    var move = JSON.parse(data);
+	    selectedPiece = convertToBadCoordinate(move.from);
+	    processMoveForEnemy(convertToBadCoordinate(move.to));
+	 });
+	/*selectedPiece = {
 		piece: 2,
 		row: 0,
 		col: 6,
 		position: 1,
 		status: 0
 	};
-	/*selectedPiece.piece = 2;
-	 selectedPiece.row = 0;
-	 selectedPiece.col = 6;
-	 selectedPiece.position = 1;
-	 selectedPiece.status = 0;*/
 	var clickedBlock = {
 		row: 6,
 		col: 6
-	}
+	}*/
 	processMoveForEnemy(clickedBlock);
 
 }

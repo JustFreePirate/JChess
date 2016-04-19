@@ -56,7 +56,7 @@
               <div class="bar"></div>
             </div>
             <div class="button-container">
-              <button id = 'SignUp'><span>SignUp</span></button>
+              <button id="SignUp"><span>SignUp</span></button>
             </div>
           </form>
         </div>
