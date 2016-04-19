@@ -17,8 +17,7 @@ $(document).ready(function(){
                     if(data === 'correct'){
                         window.location.href = '/jchess/main.jsp';
                     } else {
-                        alert('Incorrect login/password');
-                        //TODO: Replace alert
+                        login.setCustomValidity("Incorrect login/password");
                     }
 
             });
@@ -43,13 +42,12 @@ $(document).ready(function(){
                     if(data === 'correct'){
                         window.location.href = '/jchess/main.jsp';
                     } else {
-                        alert('Trouble');
+                        login.setCustomValidity("Ooops. We have some trouble. Try again.");
                     }
                 })
             }
         } else {
-            alert('Passwords is not equal');
-            //TODO: Replace alert
+            repeatPassword.setCustomValidity("Passwords are not equal");
         }
     })
 

@@ -12,12 +12,12 @@ $(document).ready(function(){
                     if(data === 'correct'){
                         window.location.href = '/jchess/SignInAndSignUp.jsp';
                     } else {
-                        alert('Oooops. We have some trouble. Please, try again.');
+                        email.setCustomValidity("Oooops. We have some trouble. Please, try again.");
                     }
                 })
             }
         } else {
-            alert('Incorrect email!');
+            email.setCustomValidity("Incorrect email");
         }
     })
 
