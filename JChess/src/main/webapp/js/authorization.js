@@ -15,6 +15,7 @@ $(document).ready(function(){
         
         if(dataToServer.login != '' && dataToServer.password != ''){
             $.post('login', $.param(dataToServer), function(data){
+
                     alert(data);
                     if(data === 'correct'){
                         alert("sign in correct");
@@ -45,7 +46,7 @@ $(document).ready(function(){
                 $.post('login',$.param(dataToServer),function(data){
                     if(data === 'correct'){
                         alert("sign up correct");
-                        window.location.href = 'main.jsp';
+                        window.location.href = 'auth.jsp';
                     } else {
                         alert("sign up not correct");
                         login.setCustomValidity("Ooops. We have some trouble. Try again.");
