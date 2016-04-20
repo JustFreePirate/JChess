@@ -1,9 +1,6 @@
 package ru.jchess.servlets;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import ru.jchess.model.DatabaseManager;
-import ru.jchess.model.SignInRequestBean;
 import ru.jchess.model.User;
 
 import javax.servlet.ServletContext;
@@ -11,23 +8,21 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.crypto.Data;
-import java.io.BufferedReader;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
+import static ru.jchess.model.Constants.DB_MANAGER;
+import static ru.jchess.model.Constants.USER_PROFILE;
 
 /**
  * Created by dima on 09.04.16.
  */
 public class LoginServlet extends HttpServlet {
-    final static String SIGN_IN_CORRECT = "correct";
-    final static String SIGN_IN_NOT_CORRECT = "not_correct";
-    final static String SIGN_UP_CORRECT = "correct";
-    final static String SIGN_UP_NOT_CORRECT = "not_correct";
+    final static String SIGN_IN_SUCCESS = "sign_in_success";
+    final static String SIGN_IN_FAILURE = "login_password_invalid";
+    final static String SIGN_UP_SUCCESS = "sign_up_success";
+    final static String SIGN_UP_FILTER_FAILURE = "sign_up_filter_failure";
+    final static String SIGN_UP_USER_ALREADY_EXIST = "sign_up_user_already_exist";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         boolean ajax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
@@ -35,35 +30,38 @@ public class LoginServlet extends HttpServlet {
             String action = request.getParameter("action");
             String login = request.getParameter("login");
             String pass = request.getParameter("password");
+            Writer writer = response.getWriter();
             response.setContentType("text/plain");
             response.setCharacterEncoding("UTF-8");
             if ("SignIn".equals(action)) {
-                if (checkLoginPassAlreadyExist(login, pass)) {
-                    response.getWriter().write(SIGN_IN_CORRECT);
+                if (checkLoginPass(login, pass)) { //auth
+                    userSignIn(request, login);
+                    writer.write(SIGN_IN_SUCCESS);
                 } else {
-                    response.getWriter().write(SIGN_IN_NOT_CORRECT);
+                    writer.write(SIGN_IN_FAILURE);
                 }
             } else if ("SignUp".equals(action)) {
                 //проверяем логин и пасс на валидность (по идее почту тоже)
                 if (User.checkLoginForCorrect(login) && User.checkPasswordForCorrect(pass)) {
-                    if (checkLoginPassAlreadyExist(login,pass)) { //пользователь с таким именем уже есть
-                        response.getWriter().write(SIGN_UP_NOT_CORRECT);
+                    if (checkLoginAlreadyExist(login)) { //пользователь с таким именем уже есть
+                        writer.write(SIGN_UP_USER_ALREADY_EXIST);
                     } else {
                         //регистрируем пользователя
                         userSignUp(login,pass);
-                        response.getWriter().write(SIGN_UP_CORRECT);
+                        //логинем его
+                        userSignIn(request, login);
+                        writer.write(SIGN_UP_SUCCESS);
                     }
                 } else {
-                    response.getWriter().write(SIGN_UP_NOT_CORRECT);
+                    writer.write(SIGN_UP_FILTER_FAILURE);
                 }
             }
-            response.getWriter().flush();
-        } else {
-            //nothing to do
+            writer.close();
         }
     }
 
-    private boolean checkLoginPassAlreadyExist(String login, String pass) {
+    //check login and pass for sign in
+    private boolean checkLoginPass(String login, String pass) {
         DatabaseManager dbm = getDatabaseManager();
         User user = new User();
         user.setLogin(login);
@@ -75,6 +73,16 @@ public class LoginServlet extends HttpServlet {
         }
     }
 
+    private boolean checkLoginAlreadyExist(String login) {
+        DatabaseManager dbm = getDatabaseManager();
+        if (dbm.isLoginExist(login)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //регистрирует нового пользователя. Без проверок.
     private void userSignUp(String login, String pass) {
         DatabaseManager dbm = getDatabaseManager();
         User user = new User();
@@ -83,13 +91,20 @@ public class LoginServlet extends HttpServlet {
         dbm.addUser(user);
     }
 
+    //логинит пользователя, который уже есть в БД без проверки пароля
+    private void userSignIn(HttpServletRequest request,String login) {
+        HttpSession session = request.getSession();
+        DatabaseManager dbm = getDatabaseManager();
+        User user = dbm.getUserProfile(login);
+        session.setAttribute(USER_PROFILE, user);
+    }
 
     private DatabaseManager getDatabaseManager() {
         ServletContext sc = this.getServletContext();
-        DatabaseManager dbm = (DatabaseManager) sc.getAttribute("db_manager");
+        DatabaseManager dbm = (DatabaseManager) sc.getAttribute(DB_MANAGER);
         if (dbm == null) {
             dbm = new DatabaseManager();
-            sc.setAttribute("db_manager", dbm);
+            sc.setAttribute(DB_MANAGER, dbm);
         }
         return dbm;
     }

@@ -8,26 +8,32 @@ public class Move {
     private Decision decision;
     private Cell from;
     private Cell to;
+    private ChessPiece cp;
 
-    private Move () {}
-    private Move (Person person, Decision decision, Cell from, Cell to) {
+    private Move (Person person, Decision decision, Cell from, Cell to, ChessPiece cp) {
         this.person = person;
         this.decision = decision;
         this.from = from;
         this.to = to;
+        this.cp = cp;
     }
 
     //Все решения, которые игрок может принять за всё время игры
     static Move goFromTo (Person person, Cell from, Cell to){
-        return new Move(person, Decision.STEP, from, to);
+        return new Move(person, Decision.STEP, from, to, null);
     }
     static Move giveUp (Person person){
-        return new Move(person, Decision.GIVE_UP, null, null);
+        return new Move(person, Decision.GIVE_UP, null, null, null);
     }
-    //TODO: Castling    //Рокировка
-    //TODO: En passant  //Взятие на проходе
-    //TODO: Promotion   //Превращение пешки
-    //TODO:             //Игрок просрочил время
+    static Move castlingLong (Person person) {
+        return new Move (person, Decision.CASTLING_LONG, null, null, null);
+    }
+    static Move castlingShort (Person person) {
+        return new Move (person, Decision.CASTLING_SHORT, null, null, null);
+    }
+    static Move promotion (Person person, ChessPiece chessPiece) {
+        return new Move (person, Decision.PROMOTION, null, null, chessPiece);
+    }
 
     //getters
     public Person getPerson(){
@@ -41,5 +47,8 @@ public class Move {
     }
     public Cell getTo () {
         return this.to;
+    }
+    public ChessPiece getChessPiece () {
+        return this.cp;
     }
 }

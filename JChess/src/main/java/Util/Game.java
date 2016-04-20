@@ -1,5 +1,6 @@
 package Util;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Sergey on 18.03.2016.
@@ -13,58 +14,73 @@ public class Game {
     private final Color colorPerson1;   //Цвет фигур
     private final Color colorPerson2;
 
-    private boolean castlingPerson1;    //Пользовался игрок ли рокировкой?
-    private boolean castlingPerson2;
-
-    // "Состояния" игры
-    //private Color checkmate;  // Мат
-    //private Color check;      // Шах
-    //private Color stalemate;  // Пат
-
     // Результат игры
     private boolean isGameOver;
-    private boolean win;                //Победа одной из сторон
     private boolean draw;               //Ничья
 
     private Person winner;              //Победитель
-    private Person loser;               //На всякий случай
 
     private ChessPiece[] board;         //Доска
     private Deque<Move> history;
-//
-//    private Set<Cell> whiteFigure;
-//    private Set<Cell> blackFigure;
-//    private Cell coordKingWhite = Cell.E1;
-//    private Cell coordKingBlack = Cell.E8;
-
 
     Game (Person person1, Person person2) {
         this.person1 = person1;
         this.person2 = person2;
 
-        //whiteFigure =  new LinkedHashSet<Cell>();
-        //blackFigure =  new LinkedHashSet<Cell>();
+        colorPerson1 = Color.WHITE;
+        colorPerson2 = Color.BLACK;
+
+        history = new ArrayDeque<>();
+
+        initializeBoard();
+    }
+
+    //TODO: не тестил
+    Game (Person person1, Person person2, Deque<Move> history) {
+        this.person1 = person1;
+        this.person2 = person2;
 
         colorPerson1 = Color.WHITE;
         colorPerson2 = Color.BLACK;
 
-        history = new ArrayDeque<Move>();
-
+        this.history = history;
         initializeBoard();
+        for(Move move : history){
+            this.doIt(move);
+        }
     }
-    //Game (Deque<Move> history) {} // TODO: restore game
 
-    public boolean doIt (Move move){ /* тут будет Response, а может быть только exception */
+
+    //TODO: говно какое-то
+    public boolean doIt (Move move){
+        if (isGameOver) {
+            throw new RuntimeException("The game is over");
+        } else if (move.getDecision() != Decision.PROMOTION && checkPawnOnTheEdge(this.board)) {
+            throw new RuntimeException("The game is over");
+        }
+
         switch (move.getDecision()) {
             case STEP:
-                checkMove(move); //Чекнули ход.
+                ChessPiece figure = board[move.getFrom().ordinal()];
+                Color colorFigure = figure.getColor();
+
+                if (figure.getColor() != getColorOfPerson(move.getPerson())) {
+                    throw new RuntimeException("It's not your chess");
+                }
+                if (!getAvailableMove(move.getFrom()).contains(move.getTo())){
+                    throw new RuntimeException("Incorrect move");
+                }
+                if (checkCheck(step(board.clone(), move)).equals(colorFigure)){
+                    throw new RuntimeException("Your king is under attack!");
+                }
 
                 Color myColor =  board[move.getFrom().ordinal()].getColor();
                 Color enColor = myColor.equals(Color.BLACK) ? Color.WHITE : Color.BLACK;
 
-                board = step(board.clone(), move); //TODO
+                board = step(board.clone(), move);
 
                 if (checkStalemate(board).equals(enColor)){
+                    draw = true;
                     isGameOver = true;
                 }
                 if (checkCheckmate(board).equals(enColor)){
@@ -80,39 +96,155 @@ public class Game {
                 history.add(move);
                 break;
 
+            case CASTLING_LONG: case CASTLING_SHORT:
+                checkCastling(move);
+                doCastling(move);
+                break;
+
+            case PROMOTION:
+                if (checkPawnOnTheEdge(this.board)) pawnPromotion(move);
+                else throw new RuntimeException("nothing to promotion");
+
             default:
                 break;
         }
         return true;
     }
+
+
+
+
+    //Получим ход противника
     public Move getLastMove () {
         return history.getLast();
     }
 
-    //Эта штука кидает исключения
-    private boolean checkMove (Move move){
 
-        ChessPiece figure = board[move.getFrom().ordinal()];
-        Color colorFigure = figure.getColor();
 
-        if (figure.getColor() != getColorOfPerson(move.getPerson())) {
-            throw new RuntimeException("It's not your chess");
-        }
 
-        if (!getAvailableMove(move.getFrom()).contains(move.getTo())){
-            throw new RuntimeException("Incorrect move");
-        }
 
-        if (isGameOver) {
-            throw new RuntimeException("The game is over");
-        } else if (checkCheck(step(board.clone(), move)).equals(colorFigure)){ //TODO: .clone() ?
-            throw new RuntimeException("Your king is under attack!");
-        }
-
-        return true;
+    //Если игра закончена -- вернет победителя
+    public Person getWinner (){
+        return winner;
     }
 
+    public boolean isDraw() {
+        return draw;
+    }
 
+//===== "Активные" методы =====================================================================
+
+    //Передвигаем фигуру
+    private ChessPiece[] step(ChessPiece[] board, Move move) {
+        board[move.getTo().ordinal()] = board[move.getFrom().ordinal()];
+        board[move.getFrom().ordinal()] = ChessPiece.n;
+        return board;
+    }
+
+    //Превращение пешки
+    private void pawnPromotion (Move move) {
+        ChessPiece cp =  move.getChessPiece();
+
+        for(Cell cell : Cell.values()){
+            if(cell.getRow() == Row.r8 && board[cell.ordinal()] == ChessPiece.pW) {
+                this.board[cell.ordinal()] = cp;
+                break;
+            }
+            else if (cell.getRow() == Row.r1 && board[cell.ordinal()] == ChessPiece.pB) {
+                this.board[cell.ordinal()] = cp;
+                break;
+            }
+        }
+    }
+
+    //Рокировка
+    private void doCastling (Move move) {
+        Person person = move.getPerson();
+        Color personColor = getColorOfPerson(person);
+
+        if (personColor == Color.WHITE){
+            switch (move.getDecision()){
+                case CASTLING_SHORT:
+                    this.board = step(this.board, Move.goFromTo(person,Cell.E1,Cell.G1));
+                    this.board = step(this.board, Move.goFromTo(person,Cell.H1,Cell.F1));
+                    break;
+                case CASTLING_LONG:
+                    this.board = step(this.board, Move.goFromTo(person,Cell.E1,Cell.C1));
+                    this.board = step(this.board, Move.goFromTo(person,Cell.H1,Cell.D1));
+                    break;
+                default: throw new RuntimeException("Unknown castling");
+            }
+        } else {
+            switch (move.getDecision()){
+                case CASTLING_SHORT:
+                    this.board = step(this.board, Move.goFromTo(person,Cell.E8,Cell.G8));
+                    this.board = step(this.board, Move.goFromTo(person,Cell.H8,Cell.F8));
+                    break;
+
+                case CASTLING_LONG:
+                    this.board = step(this.board, Move.goFromTo(person,Cell.E1,Cell.C1));
+                    this.board = step(this.board, Move.goFromTo(person,Cell.H1,Cell.D1));
+                    break;
+
+                default: throw new RuntimeException("Unknown castling");
+            }
+        }
+
+    }
+
+    private void initializeBoard (){
+        //Инициализировали доску
+        board = new ChessPiece[64];
+        for(int i = Cell.A8.ordinal(); i < Cell.H1.ordinal(); i++){
+            board[i] = ChessPiece.n;
+        }
+
+        //Тут я сильно не парился -_-
+        board[Cell.A1.ordinal()] = ChessPiece.RW;
+        board[Cell.B1.ordinal()] = ChessPiece.NW;
+        board[Cell.C1.ordinal()] = ChessPiece.BW;
+        board[Cell.D1.ordinal()] = ChessPiece.QW;
+        board[Cell.E1.ordinal()] = ChessPiece.KW;
+        board[Cell.F1.ordinal()] = ChessPiece.BW;
+        board[Cell.G1.ordinal()] = ChessPiece.NW;
+        board[Cell.H1.ordinal()] = ChessPiece.RW;
+
+        board[Cell.A8.ordinal()] = ChessPiece.RB;
+        board[Cell.B8.ordinal()] = ChessPiece.NB;
+        board[Cell.C8.ordinal()] = ChessPiece.BB;
+        board[Cell.D8.ordinal()] = ChessPiece.QB;
+        board[Cell.E8.ordinal()] = ChessPiece.KB;
+        board[Cell.F8.ordinal()] = ChessPiece.BB;
+        board[Cell.G8.ordinal()] = ChessPiece.NB;
+        board[Cell.H8.ordinal()] = ChessPiece.RB;
+
+        board[Cell.A2.ordinal()] = ChessPiece.pW;
+        board[Cell.B2.ordinal()] = ChessPiece.pW;
+        board[Cell.C2.ordinal()] = ChessPiece.pW;
+        board[Cell.D2.ordinal()] = ChessPiece.pW;
+        board[Cell.E2.ordinal()] = ChessPiece.pW;
+        board[Cell.F2.ordinal()] = ChessPiece.pW;
+        board[Cell.G2.ordinal()] = ChessPiece.pW;
+        board[Cell.H2.ordinal()] = ChessPiece.pW;
+
+        board[Cell.A7.ordinal()] = ChessPiece.pB;
+        board[Cell.B7.ordinal()] = ChessPiece.pB;
+        board[Cell.C7.ordinal()] = ChessPiece.pB;
+        board[Cell.D7.ordinal()] = ChessPiece.pB;
+        board[Cell.E7.ordinal()] = ChessPiece.pB;
+        board[Cell.F7.ordinal()] = ChessPiece.pB;
+        board[Cell.G7.ordinal()] = ChessPiece.pB;
+        board[Cell.H7.ordinal()] = ChessPiece.pB;
+    }
+
+//===== Всякие штуки для работы с цветами клеточек =====================================================================
+
+    private Color getCellColor (ChessPiece[] board, Cell cell) {
+        return board[cell.ordinal()].getColor();
+    }
+    private Color getColorOfPerson (Person person){
+        return person == person1 ? colorPerson1 : colorPerson2;
+    }
     private boolean isSameColor (ChessPiece[] board, Cell cell1, Cell cell2) {
         return board[cell1.ordinal()].getColor() == board[cell2.ordinal()].getColor();
     }
@@ -125,9 +257,12 @@ public class Game {
     private boolean isNone(ChessPiece[] board, Cell cell) {
         return board[cell.ordinal()].getColor() == Color.None;
     }
+
+//===== Всякие штуки для работы с клеточками и фигурами ================================================================
+
     private Set<Cell> stepWhile(ChessPiece[] board, Cell cell, int x, int y){
         Color color = board[cell.ordinal()].getColor();
-        Set<Cell> cells = new LinkedHashSet<Cell>();
+        Set<Cell> cells = new LinkedHashSet<>();
 
         try {
             while(board[cell.go(x,y).ordinal()] == ChessPiece.n){ //Шагаем, пока на пути пусто. И добавляем в cells
@@ -143,8 +278,8 @@ public class Game {
         return cells;
     }
     private Set<Cell> getAvailableKingMove (ChessPiece[] board, Cell cell) {
-        Set<Cell> avaliableMove =  new LinkedHashSet<Cell>();
-        Set<Cell> cells = new LinkedHashSet<Cell>();
+        Set<Cell> avaliableMove =  new LinkedHashSet<>();
+        Set<Cell> cells = new LinkedHashSet<>();
 
         cells.add(cell.go(1,1));
         cells.add(cell.go(1,0));
@@ -165,13 +300,13 @@ public class Game {
         return avaliableMove;
     }
     private Set<Cell> getAvailableQueenMove (ChessPiece[] board, Cell cell) {
-        Set<Cell> avaliableMove = new LinkedHashSet<Cell>();
+        Set<Cell> avaliableMove = new LinkedHashSet<>();
         avaliableMove.addAll(getAvailableBishopMove(board, cell));
         avaliableMove.addAll(getAvailableRookMove(board, cell));
         return avaliableMove;
     }
     private Set<Cell> getAvailableRookMove (ChessPiece[] board, Cell cell) {
-        Set<Cell> avaliableMove = new LinkedHashSet<Cell>();
+        Set<Cell> avaliableMove = new LinkedHashSet<>();
 
         avaliableMove.addAll(stepWhile(board, cell, 1, 0));
         avaliableMove.addAll(stepWhile(board, cell, 0, 1));
@@ -214,7 +349,7 @@ public class Game {
         return avaliableMove;
     }
     private Set<Cell> getAvailablePawnMove (ChessPiece[] board, Cell cell) {
-        Set<Cell> avaliableMove =  new LinkedHashSet<Cell>();
+        Set<Cell> avaliableMove =  new LinkedHashSet<>();
 
         Row fromRow = cell.getRow();
         Color color = board[cell.ordinal()].getColor();
@@ -257,6 +392,7 @@ public class Game {
         return avaliableMove;
     }
 
+    //Получить доступные ходы с [этой] клетки
     private Set<Cell> getAvailableMove (ChessPiece[] board, Cell cell) {
         ChessPiece figure = board[cell.ordinal()];
         switch (figure) {
@@ -275,62 +411,21 @@ public class Game {
         return getAvailableMove(this.board, cell);
     }
 
-//    private Person getPersonOfColor (Color color){
-//        return colorPerson1 == color ? person1 : person2;
-//    }
-    private Color getColorOfPerson (Person person){
-        return person == person1 ? colorPerson1 : colorPerson2;
-    }
+    //Все ходы, которые под доступны для белых/черных
+    private Set<Move> availableMoves(ChessPiece[] board, Color color){
+        Set<Cell> myFigure = findFigure(board, color);
+        Set<Move> moves = new LinkedHashSet<>();
 
-    private Color checkCheckmate (ChessPiece[] board) {
-        Color color = checkCheck(board);
-        if (color.equals(Color.None)) return Color.None;
-
-        Set<Move> aMoves= avaliableMoves(board, color);
-
-        return aMoves.stream().map(mov -> checkCheck(step(board.clone(), mov))).allMatch(col -> col == color) ? color : Color.None;
-    }
-    private Color checkCheck (ChessPiece[] board) {
-        Set<Cell> attackWhile =  new LinkedHashSet<Cell>();
-        Set<Cell> attackfBlack =  new LinkedHashSet<Cell>();
-
-        Set<Cell> whiteFigure = findFigure(board, Color.WHITE);
-        Set<Cell> blackFigure = findFigure(board, Color.BLACK);
-
-        Cell coordKingWhite = (Cell) whiteFigure.stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KW)).toArray()[0];
-        Cell coordKingBlack = (Cell) blackFigure.stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KB)).toArray()[0];
-
-        for(Cell cell : whiteFigure){
-            attackWhile.addAll(getAvailableMove(board, cell));
+        for(Cell from : myFigure){
+            Set<Cell> tos = getAvailableMove(board, from);
+            moves.addAll(tos.stream().map(to -> Move.goFromTo(person1, from, to)).collect(Collectors.toList()));
         }
-        for(Cell cell : blackFigure){
-            attackfBlack.addAll(getAvailableMove(board, cell));
-        }
-
-        if(attackWhile.contains(coordKingBlack)){
-            return Color.BLACK;
-        } else if(attackfBlack.contains(coordKingWhite)){
-            return Color.WHITE;
-        } else {
-            return Color.None;
-        }
-    }
-    private Color checkStalemate (ChessPiece[] board) {
-        if (!checkCheck(board).equals(Color.None)) return Color.None;
-
-        Set<Move> aWhiteMoves= avaliableMoves(board, Color.WHITE);
-        Set<Move> aBlackMoves= avaliableMoves(board, Color.BLACK);
-
-        Color cW = aWhiteMoves.stream().map(mov -> checkCheck(step(board.clone(), mov))).allMatch(col -> col == Color.WHITE) ? Color.WHITE : Color.None;
-        Color cB = aBlackMoves.stream().map(mov -> checkCheck(step(board.clone(), mov))).allMatch(col -> col == Color.BLACK) ? Color.BLACK : Color.None;
-        return cW.equals(Color.None) ? cW : cB;
+        return moves;
     }
 
-    private Color getCellColor (ChessPiece[] board, Cell cell) {
-        return board[cell.ordinal()].getColor();
-    }
+    //Множество клеток, на которых стоят фигуры белых/черных
     private Set<Cell> findFigure(ChessPiece[] board, Color color) {
-        Set<Cell> figure = new LinkedHashSet<Cell>();
+        Set<Cell> figure = new LinkedHashSet<>();
 
         for (Cell cell : Cell.values()){
             if(getCellColor(board,cell) == color){
@@ -340,24 +435,167 @@ public class Game {
         return figure;
     }
 
-    private ChessPiece[] step(ChessPiece[] board, Move move) {
-        board[move.getTo().ordinal()] = board[move.getFrom().ordinal()];
-        board[move.getFrom().ordinal()] = ChessPiece.n;
-        return board;
-    }
+//===== Чекеры =========================================================================================================
 
-    private Set<Move> avaliableMoves(ChessPiece[] board, Color color){
-        Set<Cell> myFigure = findFigure(board, color);
-        Set<Move> moves = new LinkedHashSet<Move>();
+    // Чекаем рокировку
+    private boolean checkCastling(Move move){
+        Color personColor = getColorOfPerson(move.getPerson());
 
-        for(Cell from : myFigure){
-            Set<Cell> tos = getAvailableMove(board, from);
-            for (Cell to : tos){
-                moves.add(Move.goFromTo(person1,from,to));
+        //Если король под шахом -- не ок
+        if (checkCheck(board) == personColor)
+            throw new RuntimeException("Your king under attack");
+
+
+        if (personColor == Color.WHITE){
+            if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.E1))
+                throw new RuntimeException("King has already done step");
+            switch (move.getDecision()){
+                case CASTLING_SHORT:
+                    if (getCellColor(board, Cell.F1) != Color.None ||
+                            getCellColor(board, Cell.G1) != Color.None)
+                        throw new RuntimeException("Cell are not avaliable");
+
+                    if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.H1))
+                        throw new RuntimeException("Rook has already done step");
+
+                    //TODO: поле справа не под шахом
+                    break;
+
+                case CASTLING_LONG:
+                    if (getCellColor(board, Cell.B1) != Color.None ||
+                            getCellColor(board, Cell.C1) != Color.None ||
+                            getCellColor(board, Cell.D1) != Color.None)
+                        throw new RuntimeException("Cell are not avaliable");
+
+                    if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.A1))
+                        throw new RuntimeException("Rook has already done step");
+
+                    //TODO: поле справа не под шахом
+                    break;
+                default: throw new RuntimeException("Unknown castling");
+            }
+        } else {
+            if (! history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.E8))
+                throw new RuntimeException("King has already done step");
+            switch (move.getDecision()){
+                case CASTLING_SHORT:
+                    if (getCellColor(board, Cell.F8) != Color.None ||
+                            getCellColor(board, Cell.G8) != Color.None)
+                        throw new RuntimeException("King has already done step");
+
+                    if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.H8))
+                        throw new RuntimeException("Rook has already done step");
+
+                    //TODO: поле справа не под шахом
+                    break;
+
+                case CASTLING_LONG:
+                    if (getCellColor(board, Cell.B8) != Color.None ||
+                            getCellColor(board, Cell.C8) != Color.None ||
+                            getCellColor(board, Cell.D8) != Color.None)
+                        throw new RuntimeException("Cell are not avaliable");
+
+                    //TODO: поле справа не под шахом
+
+                    if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.A8))
+                        throw new RuntimeException("Rook has already done step");
+                    break;
+                default: throw new RuntimeException("Unknown castling");
             }
         }
-        return moves;
+
+        return true;
     }
+
+    //Возвращает цвет тех, кто бьет [эту] клетку
+    private Color checkCell (ChessPiece[] board, Cell cell) {
+        Set<Cell> attackWhile =  new LinkedHashSet<>();
+        Set<Cell> attackfBlack =  new LinkedHashSet<>();
+
+        Set<Cell> whiteFigure = findFigure(board, Color.WHITE);
+        Set<Cell> blackFigure = findFigure(board, Color.BLACK);
+
+        for(Cell c : whiteFigure){
+            attackWhile.addAll(getAvailableMove(board, c));
+        }
+        for(Cell c : blackFigure){
+            attackfBlack.addAll(getAvailableMove(board, c));
+        }
+
+        // Если этой фигней воспользоваться для пустой клетки, кажется работать будет неправильно
+        // Но мы и не пользуемся
+        assert getCellColor(board, cell) == Color.None : "А вот и нет, пользуемся";
+
+        if(attackWhile.contains(cell)){
+            return Color.WHITE;
+        } else if(attackfBlack.contains(cell)){
+            return Color.BLACK;
+        } else {
+            return Color.None;
+        }
+    }
+
+    //Чекнуть мат
+    private Color checkCheckmate (ChessPiece[] board) {
+        Color color = checkCheck(board);
+        if (color.equals(Color.None)) return Color.None;    //Если не шах, то всё
+        Set<Move> aMoves = availableMoves(board, color);
+        return aMoves.stream().map(mov -> checkCheck(step(board.clone(), mov))).allMatch(col -> col == color) ? color : Color.None;
+    }
+
+    //Чекнуть шах
+    private Color checkCheck (ChessPiece[] board) {
+        Cell coordKingWhite = (Cell) findFigure(board, Color.WHITE).stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KW)).toArray()[0];
+        Cell coordKingBlack = (Cell) findFigure(board, Color.BLACK).stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KB)).toArray()[0];
+
+        if(checkCell(board, coordKingWhite) == Color.BLACK){
+            return Color.WHITE;
+        } else if(checkCell(board, coordKingBlack) == Color.WHITE){
+            return Color.BLACK;
+        } else {
+            return Color.None;
+        }
+    }
+
+    //Чекнуть пат
+    private Color checkStalemate (ChessPiece[] board) {
+        if (!checkCheck(board).equals(Color.None)) return Color.None;
+
+        Set<Move> aWhiteMoves= availableMoves(board, Color.WHITE);
+        Set<Move> aBlackMoves= availableMoves(board, Color.BLACK);
+
+        Color cW = aWhiteMoves.stream().map(mov -> checkCheck(step(board.clone(), mov))).allMatch(col -> col == Color.WHITE) ? Color.WHITE : Color.None;
+        Color cB = aBlackMoves.stream().map(mov -> checkCheck(step(board.clone(), mov))).allMatch(col -> col == Color.BLACK) ? Color.BLACK : Color.None;
+        return cW.equals(Color.None) ? cW : cB;
+    }
+
+    //Чекнуть, не нужно ли превращать пешку
+    private boolean checkPawnOnTheEdge (ChessPiece[] board) {
+        Set<Cell> whiteEdge = new HashSet<>();
+        Set<Cell> blackEdge = new HashSet<>();
+
+        for(Cell cell : Cell.values()){
+            if(cell.getRow() == Row.r8) {
+                blackEdge.add(cell);
+            }
+            else if (cell.getRow() == Row.r1) {
+                whiteEdge.add(cell);
+            }
+        }
+
+        long nP =
+                whiteEdge.stream().filter( c -> board[c.ordinal()] == ChessPiece.pB).count()
+                        + blackEdge.stream().filter( c -> board[c.ordinal()] == ChessPiece.pW).count();
+
+
+        //Если на краю больше чем одна пешка, значит мы вовремя не превратили прошлую, это fail
+        assert nP > 1 : ">1 pawn on edge";
+
+
+        // Если хотя бы одна пешка стоит на краю -- нужно делать превращение
+        return nP > 0;
+    }
+//======================================================================================================================
 
     @Override
     public String toString() {
@@ -365,58 +603,10 @@ public class Game {
 
         for(int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
-                builder.append("\t" + board[i*8 + j].toString());
+                builder.append("\t").append(board[i*8 + j].toString());
             }
             builder.append("\n");
         }
         return builder.toString();
-    }
-
-    //TODO: что с этим сделать?
-    private void initializeBoard (){
-        board = new ChessPiece[64];
-        for(int i = Cell.A8.ordinal(); i < Cell.H1.ordinal(); i++){
-            board[i] = ChessPiece.n;
-        }
-
-        //Sorry for this -_-
-        board[Cell.A1.ordinal()] = ChessPiece.RW;
-        board[Cell.B1.ordinal()] = ChessPiece.NW;
-        board[Cell.C1.ordinal()] = ChessPiece.BW;
-        board[Cell.D1.ordinal()] = ChessPiece.QW;
-        board[Cell.E1.ordinal()] = ChessPiece.KW;
-        board[Cell.F1.ordinal()] = ChessPiece.BW;
-        board[Cell.G1.ordinal()] = ChessPiece.NW;
-        board[Cell.H1.ordinal()] = ChessPiece.RW;
-
-        board[Cell.A8.ordinal()] = ChessPiece.RB;
-        board[Cell.B8.ordinal()] = ChessPiece.NB;
-        board[Cell.C8.ordinal()] = ChessPiece.BB;
-        board[Cell.D8.ordinal()] = ChessPiece.QB;
-        board[Cell.E8.ordinal()] = ChessPiece.KB;
-        board[Cell.F8.ordinal()] = ChessPiece.BB;
-        board[Cell.G8.ordinal()] = ChessPiece.NB;
-        board[Cell.H8.ordinal()] = ChessPiece.RB;
-
-        board[Cell.A2.ordinal()] = ChessPiece.pW;
-        board[Cell.B2.ordinal()] = ChessPiece.pW;
-        board[Cell.C2.ordinal()] = ChessPiece.pW;
-        board[Cell.D2.ordinal()] = ChessPiece.pW;
-        board[Cell.E2.ordinal()] = ChessPiece.pW;
-        board[Cell.F2.ordinal()] = ChessPiece.pW;
-        board[Cell.G2.ordinal()] = ChessPiece.pW;
-        board[Cell.H2.ordinal()] = ChessPiece.pW;
-
-        board[Cell.A7.ordinal()] = ChessPiece.pB;
-        board[Cell.B7.ordinal()] = ChessPiece.pB;
-        board[Cell.C7.ordinal()] = ChessPiece.pB;
-        board[Cell.D7.ordinal()] = ChessPiece.pB;
-        board[Cell.E7.ordinal()] = ChessPiece.pB;
-        board[Cell.F7.ordinal()] = ChessPiece.pB;
-        board[Cell.G7.ordinal()] = ChessPiece.pB;
-        board[Cell.H7.ordinal()] = ChessPiece.pB;
-    }
-    public Person getWinner (){
-        return winner;
     }
 }

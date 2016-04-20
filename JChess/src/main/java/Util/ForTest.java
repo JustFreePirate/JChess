@@ -1,19 +1,35 @@
 package Util;
 
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by Sergey on 18.03.2016.
  */
 public class ForTest {
-    public static void main(String[] args) {
 
+
+
+
+    public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
         Person Anna = new Person("Anna");
         Person Nick = new Person("Nick");
 
         Game game = new Game(Anna, Nick);
+
+        //Превращение работает
+//        game.doIt(Move.goFromTo(Anna,Cell.E2,Cell.E4)); System.out.println(game);
+//        game.doIt(Move.goFromTo(Nick,Cell.D7,Cell.D5)); System.out.println(game);
+//        game.doIt(Move.goFromTo(Anna,Cell.E4,Cell.D5)); System.out.println(game);
+//        game.doIt(Move.goFromTo(Nick,Cell.F7,Cell.F6)); System.out.println(game);
+//        game.doIt(Move.goFromTo(Anna,Cell.D5,Cell.D6)); System.out.println(game);
+//        game.doIt(Move.goFromTo(Nick,Cell.E8,Cell.F7)); System.out.println(game);
+//        game.doIt(Move.goFromTo(Anna,Cell.D6,Cell.D7)); System.out.println(game);
+//        game.doIt(Move.goFromTo(Nick,Cell.D8,Cell.E8)); System.out.println(game);
+//        game.doIt(Move.goFromTo(Anna,Cell.D7,Cell.D8)); System.out.println(game);
+//        game.doIt(Move.promotion(Anna, ChessPiece.QW)); System.out.println(game);
+
 
 //        AI AnnaAI = new AI(Anna, Color.WHITE);
 //        AI NickAI = new AI(Nick, Color.BLACK);
@@ -44,18 +60,6 @@ public class ForTest {
 //        }
 
 
-
-
-
-//        game.doIt(Move.goFromTo(Anna,Cell.E2,Cell.E4)); System.out.println(game);
-//        game.doIt(Move.goFromTo(Nick,Cell.C7,Cell.C5)); System.out.println(game);
-//        game.doIt(Move.goFromTo(Anna,Cell.E1,Cell.E2)); System.out.println(game);
-//        game.doIt(Move.goFromTo(Nick,Cell.A7,Cell.A5)); System.out.println(game);
-//        game.doIt(Move.goFromTo(Anna,Cell.E2,Cell.D3)); System.out.println(game);
-//        game.doIt(Move.goFromTo(Nick,Cell.B8,Cell.C6)); System.out.println(game);
-//        game.doIt(Move.goFromTo(Anna,Cell.D1,Cell.F3)); System.out.println(game);
-//        game.doIt(Move.goFromTo(Anna,Cell.F3,Cell.F5)); System.out.println(game);
-
         //Scholar's mate
         game.doIt(Move.goFromTo(Anna,Cell.E2,Cell.E4)); System.out.println(game);
         game.doIt(Move.goFromTo(Nick,Cell.E7,Cell.E5)); System.out.println(game);
@@ -63,20 +67,24 @@ public class ForTest {
         game.doIt(Move.goFromTo(Nick,Cell.B8,Cell.C6)); System.out.println(game);
         game.doIt(Move.goFromTo(Anna,Cell.D1,Cell.H5)); System.out.println(game);
         game.doIt(Move.goFromTo(Nick,Cell.G8,Cell.F6)); System.out.println(game);
-        game.doIt(Move.goFromTo(Anna,Cell.H5,Cell.F7)); System.out.println(game);
+        //game.doIt(Move.goFromTo(Anna,Cell.H5,Cell.F7)); System.out.println(game);
 
-        while (true) {
+        //Рокировка
+        game.doIt(Move.goFromTo(Anna,Cell.G1,Cell.H3)); System.out.println(game);
+        game.doIt(Move.castlingShort(Anna)); System.out.println(game);
 
-            String str1 = sc.nextLine();
-            String from1 = str1.substring(0,2);
-            String to1 = str1.substring(3,5);
-            game.doIt(Move.goFromTo(Nick,Cell.valueOf(from1),Cell.valueOf(to1))); System.out.println(game);
-
-            String str2 = sc.nextLine();
-            String from2 = str2.substring(0,2);
-            String to2 = str2.substring(3,5);
-            game.doIt(Move.goFromTo(Anna,Cell.valueOf(from2),Cell.valueOf(to2))); System.out.println(game);
-        }
+//        while (true) {
+//
+//            String str1 = sc.nextLine();
+//            String from1 = str1.substring(0,2);
+//            String to1 = str1.substring(3,5);
+//            game.doIt(Move.goFromTo(Nick,Cell.valueOf(from1),Cell.valueOf(to1))); System.out.println(game);
+//
+//            String str2 = sc.nextLine();
+//            String from2 = str2.substring(0,2);
+//            String to2 = str2.substring(3,5);
+//            game.doIt(Move.goFromTo(Anna,Cell.valueOf(from2),Cell.valueOf(to2))); System.out.println(game);
+//        }
 
     }
 }

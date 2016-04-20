@@ -729,6 +729,8 @@ function draw() {
 	/// Main entry point got the HTML5 chess board example
 
      	canvas = document.getElementById('chess');
+     	var ImageABC = document.getElementById('abc');
+        var Image123 = document.getElementById('1234');
 
      	// Canvas supported?
      	if (canvas.getContext) {
@@ -739,6 +741,13 @@ function draw() {
              if (canvas.height > screen.availHeight) {
                  canvas.height = canvas.height * canvasCoef;
                  canvas.width = canvas.width * canvasCoef;
+
+                 ImageABC.height = ImageABC.height * (canvas.width / ImageABC.width);
+                 ImageABC.width = canvas.width;
+
+                 Image123.width = Image123.width * (canvas.height / Image123.height);
+                 Image123.height = canvas.height;
+
              }
 
              // Calculate the precise block size

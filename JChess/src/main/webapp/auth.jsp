@@ -18,7 +18,7 @@
         <form>
           <div class="input-container">
             <input type="text" id="loginSignIn" required="required">
-            <label for="loginSignIn">Login</label>
+            <label for="loginSignIn">Email</label>
             <div class="bar"></div>
           </div>
           <div class="input-container">
@@ -42,7 +42,7 @@
           <form>
             <div class="input-container">
               <input type="text" id="loginSignUp" required="required"/>
-              <label for="loginSignUp">Login</label>
+              <label for="loginSignUp">Email</label>
               <div class="bar"></div>
             </div>
             <div class="input-container">
