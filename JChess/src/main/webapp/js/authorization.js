@@ -16,6 +16,7 @@ $(document).ready(function(){
         if(dataToServer.login != '' && dataToServer.password != ''){
             $.post('login', $.param(dataToServer), function(data){
                     alert(data);
+                    login.value = "correct"
                     if(data === 'correct'){
                         alert("sign in correct");
                         window.location.href = 'main.jsp';
@@ -26,6 +27,7 @@ $(document).ready(function(){
 
             });
         }
+        return false;
     });
 
     $('#SignUp').on('click',function(){
@@ -55,6 +57,7 @@ $(document).ready(function(){
         } else {
             repeatPassword.setCustomValidity("Passwords are not equal");
         }
+        return false;
     });
 
     $('.toggle').on('click', function() {
