@@ -11,12 +11,16 @@ $(document).ready(function(){
             action: 'SignIn',
             login: login.value,
             password: password.value
-        }
+        };
+        
         if(dataToServer.login != '' && dataToServer.password != ''){
-            $.post('main', $.param(dataToServer), function(data){
+            $.post('login', $.param(dataToServer), function(data){
+                    alert(data);
                     if(data === 'correct'){
-                        window.location.href = '/jchess/main.jsp';
+                        alert("sign in correct");
+                        window.location.href = 'main.jsp';
                     } else {
+                        alert("sign in not correct");
                         login.setCustomValidity("Incorrect login/password");
                     }
 
@@ -28,28 +32,30 @@ $(document).ready(function(){
 /*        var login = $('#loginSignUp');
         var password = $('#passwordSignUp');
         var repeatPassword = $('#repeatPasswordSignUp');*/
-        var login = document.getElementById('loginSignIn');
-        var password = document.getElementById('passwordSignIn');
+        var login = document.getElementById('loginSignUp');
+        var password = document.getElementById('passwordSignUp');
         var repeatPassword = document.getElementById('repeatPasswordSignUp');
         if(password.value === repeatPassword.value){
             var dataToServer = {
                 action: 'SignUp',
                 login: login.value,
                 password: password.value
-            }
+            };
             if(dataToServer.login != '' && dataToServer.password != ''){
-                $.post('main',dataToServer,function(data){
+                $.post('login',$.param(dataToServer),function(data){
                     if(data === 'correct'){
-                        window.location.href = '/jchess/main.jsp';
+                        alert("sign up correct");
+                        window.location.href = 'main.jsp';
                     } else {
+                        alert("sign up not correct");
                         login.setCustomValidity("Ooops. We have some trouble. Try again.");
                     }
-                })
+                });
             }
         } else {
             repeatPassword.setCustomValidity("Passwords are not equal");
         }
-    })
+    });
 
     $('.toggle').on('click', function() {
         $('.container').stop().addClass('active');

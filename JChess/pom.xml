@@ -62,11 +62,13 @@
             <artifactId>sql2o</artifactId>
             <version>1.5.4</version>
         </dependency>
+        <!--
         <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc6</artifactId>
-            <version>LATEST</version>
+            <groupId>com.oracle.jdbc</groupId>
+            <artifactId>ojdbc7</artifactId>
+            <version>RELEASE</version>
         </dependency>
+        -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>

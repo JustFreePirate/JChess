@@ -29,7 +29,7 @@
           <div class="button-container">
             <button value="SignIn" id="SignIn"><span>Sign In</span></button>
           </div>
-          <div class="footer"><a href="/jchess/forgotPass.jsp">Forgot your password?</a></div>
+          <div class="footer"><a href="forgotPass.jsp">Forgot your password?</a></div>
         </form>
       </div>
 
