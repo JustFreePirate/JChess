@@ -7,6 +7,8 @@
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" >
         <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
 
+
+
     </head>
     <body onload='draw();'>
        		<div  class="row">
@@ -18,14 +20,14 @@
                     <div id="Board" class="pull-left">
                         <canvas id="chess" width="800" height="800" border="0"></canvas>
                         <div>
-                        <img src="img/abc.png" width="539" height="20.2125" class="abc">
+                        <img id="abc" src="img/abc.png" width="800" height="30" class="abc">
                         </div>
 
                     </div>
 
                 </div>
                 <div class="pull-left" width="30" >
-                 <img src="img/123.png" width="20.2125" height="539" class="num">
+                 <img id="1234" src="img/123.png" width="30" height="800" class="num">
                 </div>
     		    <div class="col-md-3">
                     <table id="table" class="table table-striped">

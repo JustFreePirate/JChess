@@ -491,7 +491,6 @@ function movePieceForEnemy(clickedBlock, enemyPiece) {
 }
 
 
-
 function processMove(clickedBlock) {
     var pieceAtBlock = getPieceAtBlock(clickedBlock, json.white),
         enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
@@ -504,11 +503,11 @@ function processMove(clickedBlock) {
         answer = '';
         if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2) {
             if (selectedPiece.col - clickedBlock.col === 2) {
-                addToTable('0-0-0','','white');
+                addToTable('0-0-0', '', 'white');
                 longCastling(clickedBlock, enemyPiece);
             } else {
-                addToTable('0-0','','white');
-                shortCastling(clickedBlock,enemyPiece);
+                addToTable('0-0', '', 'white');
+                shortCastling(clickedBlock, enemyPiece);
             }
         } else {
             addToTable(convertToStdCoordinate(selectedPiece),
@@ -517,12 +516,12 @@ function processMove(clickedBlock) {
             currentTurn = BLACK_TEAM;
             WaitingEnemyMove();
         }
-        
+
     }
 }
 
-function shortCastling(clickedBlock,enemyPiece) {
-    movePiece(clickedBlock,enemyPiece);
+function shortCastling(clickedBlock, enemyPiece) {
+    movePiece(clickedBlock, enemyPiece);
     clickedBlock.col = clickedBlock.col - 1;
     selectedPiece = {
         piece: PIECE_CASTLE,
@@ -531,11 +530,11 @@ function shortCastling(clickedBlock,enemyPiece) {
         status: IN_PLAY,
         position: 7
     }
-    movePiece(clickedBlock,enemyPiece);
+    movePiece(clickedBlock, enemyPiece);
 }
 
 function longCastling(clickedBlock, enemyPiece) {
-    movePiece(clickedBlock,enemyPiece);
+    movePiece(clickedBlock, enemyPiece);
     clickedBlock.col = clickedBlock.col + 1;
     selectedPiece = {
         piece: PIECE_CASTLE,
@@ -544,20 +543,20 @@ function longCastling(clickedBlock, enemyPiece) {
         status: IN_PLAY,
         position: 0
     }
-    movePiece(clickedBlock,enemyPiece);
+    movePiece(clickedBlock, enemyPiece);
 }
 
 
 function processMoveForEnemy(clickedBlock) {
     var enemyPiece = blockOccupiedByEnemy(clickedBlock, json.white);
 
-    if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2){
+    if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2) {
         if (selectedPiece.col - clickedBlock.col === 2) {
-            addToTable('0-0-0','','black');
+            addToTable('0-0-0', '', 'black');
             longCastlingForEnemy(clickedBlock, enemyPiece);
         } else {
-            addToTable('0-0','','black');
-            shortCastlingForEnemy(clickedBlock,enemyPiece);
+            addToTable('0-0', '', 'black');
+            shortCastlingForEnemy(clickedBlock, enemyPiece);
         }
     } else {
         addToTable(convertToStdCoordinate(selectedPiece), convertToStdCoordinate(clickedBlock), 'black');
@@ -566,8 +565,8 @@ function processMoveForEnemy(clickedBlock) {
     currentTurn = WHITE_TEAM;
 }
 
-function shortCastlingForEnemy(clickedBlock,enemyPiece) {
-    movePieceForEnemy(clickedBlock,enemyPiece);
+function shortCastlingForEnemy(clickedBlock, enemyPiece) {
+    movePieceForEnemy(clickedBlock, enemyPiece);
     clickedBlock.col = clickedBlock.col - 1;
     selectedPiece = {
         piece: PIECE_CASTLE,
@@ -576,11 +575,11 @@ function shortCastlingForEnemy(clickedBlock,enemyPiece) {
         status: IN_PLAY,
         position: 7
     }
-    movePieceForEnemy(clickedBlock,enemyPiece);
+    movePieceForEnemy(clickedBlock, enemyPiece);
 }
 
 function longCastlingForEnemy(clickedBlock, enemyPiece) {
-    movePiece(clickedBlock,enemyPiece);
+    movePiece(clickedBlock, enemyPiece);
     clickedBlock.col = clickedBlock.col + 1;
     selectedPiece = {
         piece: PIECE_CASTLE,
@@ -589,7 +588,7 @@ function longCastlingForEnemy(clickedBlock, enemyPiece) {
         status: IN_PLAY,
         position: 0
     }
-    movePiece(clickedBlock,enemyPiece);
+    movePiece(clickedBlock, enemyPiece);
 }
 
 function WaitingEnemyMove() {
@@ -600,9 +599,9 @@ function WaitingEnemyMove() {
      selectedPiece = convertToBadCoordinate(move.from);
      processMoveForEnemy(convertToBadCoordinate(move.to));
      });*/
-     
-    
-    if(temp === 2){
+
+
+    if (temp === 2) {
         selectedPiece = {
             piece: PIECE_KING,
             row: 0,
@@ -616,7 +615,7 @@ function WaitingEnemyMove() {
         }
         temp++;
     }
-    if(temp === 1){
+    if (temp === 1) {
         selectedPiece = {
             piece: PIECE_BISHOP,
             row: 0,
@@ -630,7 +629,7 @@ function WaitingEnemyMove() {
         }
         temp++;
     }
-    if(temp === 0){
+    if (temp === 0) {
         selectedPiece = {
             piece: PIECE_ROUKE,
             row: 0,
@@ -642,9 +641,9 @@ function WaitingEnemyMove() {
             row: 6,
             col: 6
         }
-        temp ++;
+        temp++;
     }
-    
+
     processMoveForEnemy(clickedBlock);
 
 }
@@ -670,7 +669,7 @@ function addToTable(selectedBlock, moveBlock, currentColor) {
     if (currentColor === 'white') {
         var row = table.insertRow(table.rows.length);
         var cell1 = row.insertCell(0);
-        if(moveBlock != '')
+        if (moveBlock != '')
             cell1.innerHTML = selectedBlock + ' - ' + moveBlock;
         else
             cell1.innerHTML = selectedBlock;
@@ -678,7 +677,7 @@ function addToTable(selectedBlock, moveBlock, currentColor) {
     if (currentColor === 'black') {
         var row = table.rows.item(table.rows.length - 1);
         var cell2 = row.insertCell(1);
-        if(moveBlock != '')
+        if (moveBlock != '')
             cell2.innerHTML = selectedBlock + ' - ' + moveBlock;
         else
             cell2.innerHTML = selectedBlock;
@@ -692,6 +691,8 @@ function draw() {
     // Main entry point got the HTML5 chess board example
 
     canvas = document.getElementById('chess');
+    var ImageABC = document.getElementById('abc');
+    var Image123 = document.getElementById('1234');
 
     // Canvas supported?
     if (canvas.getContext) {
@@ -702,11 +703,16 @@ function draw() {
         if (canvas.height > screen.availHeight) {
             canvas.height = canvas.height * canvasCoef;
             canvas.width = canvas.width * canvasCoef;
+            
+            ImageABC.height = ImageABC.height * (canvas.width / ImageABC.width);
+            ImageABC.width = canvas.width;
+
+            Image123.width = Image123.width * (canvas.height / Image123.height);
+            Image123.height = canvas.height;
         }
 
         // Calculate the precise block size
         BLOCK_SIZE = canvas.height / NUMBER_OF_ROWS;
-
 
         // Draw the background
         drawBoard();
