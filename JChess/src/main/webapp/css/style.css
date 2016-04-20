@@ -378,15 +378,15 @@ canvas {
   table{
 
   margin-top:50px;
-  margin-left:50px;
+  margin-left:20px;
    height:300px;
   }
   th {
-      width: 152px;
+      width: 122px;
       text-align:center !important;
   }
   td {
-    width: 150px;
+    width: 120px;
     text-align:center !important;
     }
   tbody{
@@ -432,4 +432,13 @@ canvas {
 .par1{
     width: 360px;
     margin: 0 80px 30px;
+}
+.num{
+margin-top:20px;
+margin-left:15px;
+
+}
+.abc{
+margin-top:15px;
+
 }
