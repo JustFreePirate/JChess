@@ -19,7 +19,8 @@ $(document).ready(function(){
         } else {
             email.setCustomValidity("Incorrect email");
         }
-    })
+        return false
+    });
 
 
     function isEmail(email){

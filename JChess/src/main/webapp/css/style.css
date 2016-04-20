@@ -102,10 +102,10 @@ body {
 .card .title {
   position: relative;
   z-index: 1;
-  border-left: 5px solid #ed2553;
+  border-left: 5px solid #26a69a;
   margin: 0 0 35px;
   padding: 10px 0 10px 50px;
-  color: #ed2553;
+  color: #26a69a;
   font-size: 32px;
   font-weight: 600;
   text-transform: uppercase;
@@ -207,7 +207,7 @@ body {
   top: 50%;
   left: 50%;
   display: block;
-  background: #ed2553;
+  background: #26a69a;
   width: 30px;
   height: 30px;
   border-radius: 100%;
@@ -217,10 +217,10 @@ body {
   transition: .3s ease;
 }
 .card .button-container button:hover, .card .button-container button:active, .card .button-container button:focus {
-  border-color: #ed2553;
+  border-color: #26a69a;
 }
 .card .button-container button:hover span, .card .button-container button:active span, .card .button-container button:focus span {
-  color: #ed2553;
+  color: #26a69a;
 }
 .card .button-container button:active span, .card .button-container button:focus span {
   color: #ffffff;
@@ -266,7 +266,7 @@ body {
 }
 .card.alt .toggle {
   position: relative;
-  background: #ed2553;
+  background: #26a69a;
   width: 140px;
   height: 140px;
   border-radius: 100%;
@@ -337,7 +337,7 @@ body {
   border-color: #ffffff;
 }
 .card.alt .button-container button span {
-  color: #ed2553;
+  color: #26a69a;
 }
 .card.alt .button-container button:hover {
   background: rgba(255, 255, 255, 0.9);
@@ -364,9 +364,81 @@ body {
 canvas {
   padding-left: 0;
   padding-right: 0;
+  margin-top : 20px;
   margin-left: auto;
   margin-right: auto;
   display: block;
   border: 0px;
+
+}tr {
+  width: 100%;
+  display: inline-table;
+  }
+
+  table{
+
+  margin-top:50px;
+  margin-left:20px;
+   height:300px;
+  }
+  th {
+      width: 122px;
+      text-align:center !important;
+  }
+  td {
+    width: 120px;
+    text-align:center !important;
+    }
+  tbody{
+    text-align:center !important;
+    overflow-y: scroll;
+    height: 200px;
+    width: 100%;
+    position: absolute;
+  }
+.im{
+    margin-top:50px;
+    margin-left:50px;
+}
+
+.flow-text{font-weight:300}@media only screen and (min-width: 360px)
+{.flow-text{font-size:1.2rem}}@media only screen and (min-width: 390px)
+{.flow-text{font-size:1.224rem}}@media only screen and (min-width: 420px)
+{.flow-text{font-size:1.248rem}}@media only screen and (min-width: 450px)
+{.flow-text{font-size:1.272rem}}@media only screen and (min-width: 480px)
+{.flow-text{font-size:1.296rem}}@media only screen and (min-width: 510px)
+{.flow-text{font-size:1.32rem}}@media only screen and (min-width: 540px)
+{.flow-text{font-size:1.344rem}}@media only screen and (min-width: 570px)
+{.flow-text{font-size:1.368rem}}@media only screen and (min-width: 600px)
+{.flow-text{font-size:1.392rem}}@media only screen and (min-width: 630px)
+{.flow-text{font-size:1.416rem}}@media only screen and (min-width: 660px)
+{.flow-text{font-size:1.44rem}}@media only screen and (min-width: 690px)
+{.flow-text{font-size:1.464rem}}@media only screen and (min-width: 720px)
+{.flow-text{font-size:1.488rem}}@media only screen and (min-width: 750px)
+{.flow-text{font-size:1.512rem}}@media only screen and (min-width: 780px)
+{.flow-text{font-size:1.536rem}}@media only screen and (min-width: 810px)
+{.flow-text{font-size:1.56rem}}@media only screen and (min-width: 840px)
+{.flow-text{font-size:1.584rem}}@media only screen and (min-width: 870px)
+{.flow-text{font-size:1.608rem}}@media only screen and (min-width: 900px)
+{.flow-text{font-size:1.632rem}}@media only screen and (min-width: 930px)
+{.flow-text{font-size:1.656rem}}@media only screen and (min-width: 960px)
+{.flow-text{font-size:1.68rem}}@media only screen and (max-width: 360px)
+{.flow-text{font-size:1.2rem}}
+
+.par{
+    width: 360px;
+    margin: 0 60px 30px;
+}
+.par1{
+    width: 360px;
+    margin: 0 80px 30px;
+}
+.num{
+margin-top:20px;
+margin-left:15px;
+
+}
+.abc{
+margin-top:15px;
 
 }
