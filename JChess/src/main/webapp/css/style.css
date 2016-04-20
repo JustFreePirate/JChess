@@ -376,11 +376,21 @@ canvas {
   }
 
   table{
+
   margin-top:50px;
   margin-left:50px;
    height:300px;
   }
+  th {
+      width: 152px;
+      text-align:center !important;
+  }
+  td {
+    width: 150px;
+    text-align:center !important;
+    }
   tbody{
+    text-align:center !important;
     overflow-y: scroll;
     height: 200px;
     width: 100%;
