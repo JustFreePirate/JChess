@@ -13,6 +13,7 @@ var piecePositions = null;
 var answer;  // TODO: replace to JSON
 
 var PIECE_PAWN = 0,
+    temp = 0,
     PIECE_CASTLE = 1,
     PIECE_ROUKE = 2,
     PIECE_BISHOP = 3,
@@ -53,8 +54,8 @@ function convertToStdCoordinate(coordinate) {
     if (coordinate.col === 0) return 'A' + (8 - coordinate.row);
 }
 
-function sendToServer(json){
-    $.post('game',json,function(data){
+function sendToServer(json) {
+    $.post('game', json, function (data) {
         answer = data;
     })
 }
@@ -111,7 +112,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
     }
     //sendToServer(jsonToServer);
     answer = 'correct';
-    return(answer === 'correct');
+    return (answer === 'correct');
 
 
 }
@@ -454,6 +455,8 @@ function movePiece(clickedBlock, enemyPiece) {
         drawBlock(enemyPiece.col, enemyPiece.row);
         opposite[enemyPiece.position].status = TAKEN;
     }
+    selectedPiece.col = clickedBlock.col;
+    selectedPiece.row = clickedBlock.row;
 
     // Draw the piece in the new position
     drawPiece(selectedPiece, BLACK_TEAM);
@@ -487,6 +490,8 @@ function movePieceForEnemy(clickedBlock, enemyPiece) {
 
 }
 
+
+
 function processMove(clickedBlock) {
     var pieceAtBlock = getPieceAtBlock(clickedBlock, json.white),
         enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
@@ -495,45 +500,150 @@ function processMove(clickedBlock) {
         removeSelection(selectedPiece);
         checkIfPieceClicked(clickedBlock, json.white);
     } else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
-        alert('add ' + convertToStdCoordinate(selectedPiece) + ' ' +
-            convertToStdCoordinate(clickedBlock));
-        addToTable(convertToStdCoordinate(selectedPiece),
-            convertToStdCoordinate(clickedBlock), 'white');
+
         answer = '';
-        movePiece(clickedBlock, enemyPiece);
+        if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2) {
+            if (selectedPiece.col - clickedBlock.col === 2) {
+                addToTable('0-0-0','','white');
+                longCastling(clickedBlock, enemyPiece);
+            } else {
+                addToTable('0-0','','white');
+                shortCastling(clickedBlock,enemyPiece);
+            }
+        } else {
+            addToTable(convertToStdCoordinate(selectedPiece),
+                convertToStdCoordinate(clickedBlock), 'white');
+            movePiece(clickedBlock, enemyPiece);
+        }
         currentTurn = BLACK_TEAM;
         WaitingEnemyMove();
     }
-
-
 }
+
+function shortCastling(clickedBlock,enemyPiece) {
+    movePiece(clickedBlock,enemyPiece);
+    clickedBlock.col = clickedBlock.col - 1;
+    selectedPiece = {
+        piece: PIECE_CASTLE,
+        row: 7,
+        col: 7,
+        status: IN_PLAY,
+        position: 7
+    }
+    movePiece(clickedBlock,enemyPiece);
+}
+
+function longCastling(clickedBlock, enemyPiece) {
+    movePiece(clickedBlock,enemyPiece);
+    clickedBlock.col = clickedBlock.col + 1;
+    selectedPiece = {
+        piece: PIECE_CASTLE,
+        row: 7,
+        col: 0,
+        status: IN_PLAY,
+        position: 0
+    }
+    movePiece(clickedBlock,enemyPiece);
+}
+
 
 function processMoveForEnemy(clickedBlock) {
     var enemyPiece = blockOccupiedByEnemy(clickedBlock, json.white);
-    addToTable(convertToStdCoordinate(selectedPiece), convertToStdCoordinate(clickedBlock), 'black');
-    movePieceForEnemy(clickedBlock, enemyPiece);
+
+    if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2){
+        if (selectedPiece.col - clickedBlock.col === 2) {
+            addToTable('0-0-0','','black');
+            longCastlingForEnemy(clickedBlock, enemyPiece);
+        } else {
+            addToTable('0-0','','black');
+            shortCastlingForEnemy(clickedBlock,enemyPiece);
+        }
+    } else {
+        addToTable(convertToStdCoordinate(selectedPiece), convertToStdCoordinate(clickedBlock), 'black');
+        movePieceForEnemy(clickedBlock, enemyPiece);
+    }
     currentTurn = WHITE_TEAM;
 }
 
-function WaitingEnemyMove(){
+function shortCastlingForEnemy(clickedBlock,enemyPiece) {
+    movePieceForEnemy(clickedBlock,enemyPiece);
+    clickedBlock.col = clickedBlock.col - 1;
+    selectedPiece = {
+        piece: PIECE_CASTLE,
+        row: 0,
+        col: 7,
+        status: IN_PLAY,
+        position: 7
+    }
+    movePieceForEnemy(clickedBlock,enemyPiece);
+}
+
+function longCastlingForEnemy(clickedBlock, enemyPiece) {
+    movePiece(clickedBlock,enemyPiece);
+    clickedBlock.col = clickedBlock.col + 1;
+    selectedPiece = {
+        piece: PIECE_CASTLE,
+        row: 0,
+        col: 0,
+        status: IN_PLAY,
+        position: 0
+    }
+    movePiece(clickedBlock,enemyPiece);
+}
+
+function WaitingEnemyMove() {
     //TODO: Block board
     /*$.post('game',{action: 'getEnemyMove'},function(data){
-        //TODO: Unlock board
-        var move = JSON.parse(data);
-        selectedPiece = convertToBadCoordinate(move.from);
-        processMoveForEnemy(convertToBadCoordinate(move.to));
-    });*/
-    selectedPiece = {
-         piece: 2,
-         row: 0,
-         col: 6,
-         position: 1,
-         status: 0
-     };
-    var clickedBlock = {
-        row: 6,
-     col: 6
-     }
+     //TODO: Unlock board
+     var move = JSON.parse(data);
+     selectedPiece = convertToBadCoordinate(move.from);
+     processMoveForEnemy(convertToBadCoordinate(move.to));
+     });*/
+     
+    
+    if(temp === 2){
+        selectedPiece = {
+            piece: PIECE_KING,
+            row: 0,
+            col: 4,
+            position: 4,
+            status: 0
+        };
+        var clickedBlock = {
+            row: 0,
+            col: 6
+        }
+        temp++;
+    }
+    if(temp === 1){
+        selectedPiece = {
+            piece: PIECE_BISHOP,
+            row: 0,
+            col: 5,
+            position: 5,
+            status: 0
+        };
+        var clickedBlock = {
+            row: 5,
+            col: 5
+        }
+        temp++;
+    }
+    if(temp === 0){
+        selectedPiece = {
+            piece: PIECE_ROUKE,
+            row: 0,
+            col: 6,
+            position: 6,
+            status: 0
+        };
+        var clickedBlock = {
+            row: 6,
+            col: 6
+        }
+        temp ++;
+    }
+    
     processMoveForEnemy(clickedBlock);
 
 }
@@ -555,16 +665,22 @@ function board_click(ev) {
 
 function addToTable(selectedBlock, moveBlock, currentColor) {
     var table = document.getElementById('table').getElementsByTagName('tbody')[0];
-    
+
     if (currentColor === 'white') {
-        var row = table.insertRow(table.rows.length );
+        var row = table.insertRow(table.rows.length);
         var cell1 = row.insertCell(0);
-        cell1.innerHTML = selectedBlock + ' - ' + moveBlock;
+        if(moveBlock != '')
+            cell1.innerHTML = selectedBlock + ' - ' + moveBlock;
+        else
+            cell1.innerHTML = selectedBlock;
     }
     if (currentColor === 'black') {
         var row = table.rows.item(table.rows.length - 1);
         var cell2 = row.insertCell(1);
-        cell2.innerHTML = selectedBlock + ' - ' + moveBlock;
+        if(moveBlock != '')
+            cell2.innerHTML = selectedBlock + ' - ' + moveBlock;
+        else
+            cell2.innerHTML = selectedBlock;
     }
     document.getElementById('table').rows.item(table.rows.length - 1).scrollIntoView(true);
 
@@ -603,7 +719,7 @@ function draw() {
 
 
         canvas.addEventListener('click', board_click, false);
-        
+
 
     } else {
         alert("Canvas not supported!");

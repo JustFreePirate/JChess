@@ -14,6 +14,7 @@ var answer;  // TODO: replace to JSON
 
 var PIECE_PAWN = 0,
 	PIECE_CASTLE = 1,
+	temp = 0,
 	PIECE_ROUKE = 2,
 	PIECE_BISHOP = 3,
 	PIECE_QUEEN = 4,
@@ -180,7 +181,7 @@ function drawPiece(curPiece, bBlackTeam) {
 
 function removeSelection(selectedPiece) {
 	drawBlock(selectedPiece.col, selectedPiece.row);
-	drawPiece(selectedPiece, (currentTurn === BLACK_TEAM));
+	drawPiece(selectedPiece, (currentTurn === WHITE_TEAM));
 }
 
 function drawTeamOfPieces(teamOfPieces, bBlackTeam) {
@@ -500,7 +501,20 @@ function processMove(clickedBlock) {
 		checkIfPieceClicked(clickedBlock, json.black);
 	} else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
 		answer = '';
-		movePiece(clickedBlock, enemyPiece);
+		if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2) {
+			if (selectedPiece.col - clickedBlock.col === 2) {
+				addToTable('0-0','','black');
+				shortCastling(clickedBlock,enemyPiece);
+			} else {
+				addToTable('0-0-0','','black');
+				longCastling(clickedBlock, enemyPiece);
+				
+			}
+		} else {
+			addToTable(convertToStdCoordinate(selectedPiece),
+				convertToStdCoordinate(clickedBlock), 'black');
+			movePiece(clickedBlock, enemyPiece);
+		}
 	}
 	WaitingEnemyMove();
 }
@@ -508,46 +522,126 @@ function processMove(clickedBlock) {
 function processMoveForEnemy(clickedBlock) {
 	var enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
 
-	movePieceForEnemy(clickedBlock, enemyPiece);
+	if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2){
+		if (selectedPiece.col - clickedBlock.col === 2) {
+			addToTable('0-0','','white');
+			shortCastlingForEnemy(clickedBlock,enemyPiece);
+		} else {
+			addToTable('0-0-0','','white');
+			longCastlingForEnemy(clickedBlock, enemyPiece);
+			
+		}
+	} else {
+		addToTable(convertToStdCoordinate(selectedPiece), convertToStdCoordinate(clickedBlock), 'white');
+		movePieceForEnemy(clickedBlock, enemyPiece);
+	}
 	currentTurn = WHITE_TEAM;
 }
 
-function WaitingEnemyMove(){
-	/*//TODO: Block board
-	$.post('game',{action: 'getEnemyMove'},function(data){
-	    //TODO: Unlock board
-	    var move = JSON.parse(data);
-	    selectedPiece = convertToBadCoordinate(move.from);
-	    processMoveForEnemy(convertToBadCoordinate(move.to));
-	 });*/
+function shortCastlingForEnemy(clickedBlock,enemyPiece) {
+	movePieceForEnemy(clickedBlock,enemyPiece);
+	clickedBlock.col = clickedBlock.col + 1;
 	selectedPiece = {
-		piece: 2,
+		piece: PIECE_CASTLE,
 		row: 0,
-		col: 6,
-		position: 6,
-		status: 0
-	};
-	var clickedBlock = {
-		row: 6,
-		col: 6
+		col: 7,
+		status: IN_PLAY,
+		position: 7
 	}
+	movePieceForEnemy(clickedBlock,enemyPiece);
+}
+
+function longCastlingForEnemy(clickedBlock, enemyPiece) {
+	movePiece(clickedBlock,enemyPiece);
+	clickedBlock.col = clickedBlock.col - 1;
+	selectedPiece = {
+		piece: PIECE_CASTLE,
+		row: 0,
+		col: 0,
+		status: IN_PLAY,
+		position: 0
+	}
+	movePiece(clickedBlock,enemyPiece);
+}
+
+function WaitingEnemyMove() {
+	//TODO: Block board
+	/*$.post('game',{action: 'getEnemyMove'},function(data){
+	 //TODO: Unlock board
+	 var move = JSON.parse(data);
+	 selectedPiece = convertToBadCoordinate(move.from);
+	 processMoveForEnemy(convertToBadCoordinate(move.to));
+	 });*/
+
+	if(temp === 2){
+		selectedPiece = {
+			piece: PIECE_KING,
+			row: 0,
+			col: 3,
+			position: 3,
+			status: 0
+		};
+		var clickedBlock = {
+			row: 0,
+			col: 1
+		}
+		temp++;
+	}
+	if(temp === 1){
+		selectedPiece = {
+			piece: PIECE_BISHOP,
+			row: 0,
+			col: 2,
+			position: 2,
+			status: 0
+		};
+		var clickedBlock = {
+			row: 5,
+			col: 5
+		}
+		temp++;
+	}
+	if(temp === 0){
+		selectedPiece = {
+			piece: PIECE_ROUKE,
+			row: 0,
+			col: 1,
+			position: 1,
+			status: 0
+		};
+		var clickedBlock = {
+			row: 6,
+			col: 6
+		}
+		temp ++;
+	}
+
 	processMoveForEnemy(clickedBlock);
 
 }
 
 function addToTable(selectedBlock, moveBlock, currentColor) {
-	var table = document.getElementById('table');
+	var table = document.getElementById('table').getElementsByTagName('tbody')[0];
 
 	if (currentColor === 'white') {
-		var row = table.insertRow(table.length);
+		var row = table.insertRow(table.rows.length);
 		var cell1 = row.insertCell(0);
-		cell1.innerHTML = selectedBlock + ' - ' + moveBlock;
+		if(moveBlock != '')
+			cell1.innerHTML = selectedBlock + ' - ' + moveBlock;
+		else
+			cell1.innerHTML = selectedBlock;
 	}
 	if (currentColor === 'black') {
-		var row = table.insertRow(table.length);
+		var row = table.rows.item(table.rows.length - 1);
 		var cell2 = row.insertCell(1);
-		cell2.innerHTML = selectedBlock + ' - ' + moveBlock;
+		if(moveBlock != '')
+			cell2.innerHTML = selectedBlock + ' - ' + moveBlock;
+		else
+			cell2.innerHTML = selectedBlock;
 	}
+	document.getElementById('table').rows.item(table.rows.length - 1).scrollIntoView(true);
+
+
 }
 
 
