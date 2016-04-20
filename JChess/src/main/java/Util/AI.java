@@ -159,7 +159,7 @@ public class AI {
 
     private Set<Cell> stepWhile(ChessPiece[] board, Cell cell, int x, int y){
         Color color = board[cell.ordinal()].getColor();
-        Set<Cell> cells = new LinkedHashSet<Cell>();
+        Set<Cell> cells = new LinkedHashSet<>();
 
         try {
             while(board[cell.go(x,y).ordinal()] == ChessPiece.n){ //Шагаем, пока на пути пусто. И добавляем в cells
@@ -175,8 +175,8 @@ public class AI {
         return cells;
     }
     private Set<Cell> getAvailableKingMove (ChessPiece[] board, Cell cell) {
-        Set<Cell> avaliableMove =  new LinkedHashSet<Cell>();
-        Set<Cell> cells = new LinkedHashSet<Cell>();
+        Set<Cell> avaliableMove =  new LinkedHashSet<>();
+        Set<Cell> cells = new LinkedHashSet<>();
 
         cells.add(cell.go(1,1));
         cells.add(cell.go(1,0));
@@ -197,13 +197,13 @@ public class AI {
         return avaliableMove;
     }
     private Set<Cell> getAvailableQueenMove (ChessPiece[] board, Cell cell) {
-        Set<Cell> avaliableMove = new LinkedHashSet<Cell>();
+        Set<Cell> avaliableMove = new LinkedHashSet<>();
         avaliableMove.addAll(getAvailableBishopMove(board, cell));
         avaliableMove.addAll(getAvailableRookMove(board, cell));
         return avaliableMove;
     }
     private Set<Cell> getAvailableRookMove (ChessPiece[] board, Cell cell) {
-        Set<Cell> avaliableMove = new LinkedHashSet<Cell>();
+        Set<Cell> avaliableMove = new LinkedHashSet<>();
 
         avaliableMove.addAll(stepWhile(board, cell, 1, 0));
         avaliableMove.addAll(stepWhile(board, cell, 0, 1));
