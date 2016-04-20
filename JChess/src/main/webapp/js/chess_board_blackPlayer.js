@@ -181,7 +181,7 @@ function drawPiece(curPiece, bBlackTeam) {
 
 function removeSelection(selectedPiece) {
 	drawBlock(selectedPiece.col, selectedPiece.row);
-	drawPiece(selectedPiece, (currentTurn === WHITE_TEAM));
+	drawPiece(selectedPiece, true);
 }
 
 function drawTeamOfPieces(teamOfPieces, bBlackTeam) {
@@ -461,6 +461,9 @@ function movePiece(clickedBlock, enemyPiece) {
 		opposite[enemyPiece.position].status = TAKEN;
 	}
 
+	selectedPiece.col = clickedBlock.col;
+	selectedPiece.row = clickedBlock.row;
+
 	// Draw the piece in the new position
 	drawPiece(selectedPiece, WHITE_TEAM);
 
@@ -505,18 +508,48 @@ function processMove(clickedBlock) {
 			if (selectedPiece.col - clickedBlock.col === 2) {
 				addToTable('0-0','','black');
 				shortCastling(clickedBlock,enemyPiece);
+				
 			} else {
 				addToTable('0-0-0','','black');
 				longCastling(clickedBlock, enemyPiece);
+				
 				
 			}
 		} else {
 			addToTable(convertToStdCoordinate(selectedPiece),
 				convertToStdCoordinate(clickedBlock), 'black');
 			movePiece(clickedBlock, enemyPiece);
+			
 		}
+		currentTurn = BLACK_TEAM;
+		WaitingEnemyMove();
 	}
-	WaitingEnemyMove();
+}
+
+function shortCastling(clickedBlock,enemyPiece) {
+	movePiece(clickedBlock,enemyPiece);
+	clickedBlock.col = clickedBlock.col + 1;
+	selectedPiece = {
+		piece: PIECE_CASTLE,
+		row: 7,
+		col: 0,
+		status: IN_PLAY,
+		position: 0
+	}
+	movePiece(clickedBlock,enemyPiece);
+}
+
+function longCastling(clickedBlock, enemyPiece) {
+	movePiece(clickedBlock,enemyPiece);
+	clickedBlock.col = clickedBlock.col - 1;
+	selectedPiece = {
+		piece: PIECE_CASTLE,
+		row: 7,
+		col: 7,
+		status: IN_PLAY,
+		position: 7
+	}
+	movePiece(clickedBlock,enemyPiece);
 }
 
 function processMoveForEnemy(clickedBlock) {
@@ -526,16 +559,18 @@ function processMoveForEnemy(clickedBlock) {
 		if (selectedPiece.col - clickedBlock.col === 2) {
 			addToTable('0-0','','white');
 			shortCastlingForEnemy(clickedBlock,enemyPiece);
+			currentTurn = WHITE_TEAM;
 		} else {
 			addToTable('0-0-0','','white');
 			longCastlingForEnemy(clickedBlock, enemyPiece);
-			
+			currentTurn = WHITE_TEAM;
 		}
 	} else {
 		addToTable(convertToStdCoordinate(selectedPiece), convertToStdCoordinate(clickedBlock), 'white');
 		movePieceForEnemy(clickedBlock, enemyPiece);
+		currentTurn = WHITE_TEAM;
 	}
-	currentTurn = WHITE_TEAM;
+	
 }
 
 function shortCastlingForEnemy(clickedBlock,enemyPiece) {
@@ -544,9 +579,9 @@ function shortCastlingForEnemy(clickedBlock,enemyPiece) {
 	selectedPiece = {
 		piece: PIECE_CASTLE,
 		row: 0,
-		col: 7,
+		col: 0,
 		status: IN_PLAY,
-		position: 7
+		position: 0
 	}
 	movePieceForEnemy(clickedBlock,enemyPiece);
 }
@@ -557,9 +592,9 @@ function longCastlingForEnemy(clickedBlock, enemyPiece) {
 	selectedPiece = {
 		piece: PIECE_CASTLE,
 		row: 0,
-		col: 0,
+		col: 7,
 		status: IN_PLAY,
-		position: 0
+		position: 7
 	}
 	movePiece(clickedBlock,enemyPiece);
 }
@@ -573,6 +608,19 @@ function WaitingEnemyMove() {
 	 processMoveForEnemy(convertToBadCoordinate(move.to));
 	 });*/
 
+	if(temp === 3){
+		selectedPiece = {
+			piece: PIECE_QUEEN,
+			row: 0,
+			col: 4,
+			position: 3,
+			status: 0
+		}
+		clickedBlock = {
+			row: 3,
+			col: 3
+		}
+	}
 	if(temp === 2){
 		selectedPiece = {
 			piece: PIECE_KING,

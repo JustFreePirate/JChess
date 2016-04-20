@@ -177,7 +177,7 @@ function drawPiece(curPiece, bBlackTeam) {
 
 function removeSelection(selectedPiece) {
     drawBlock(selectedPiece.col, selectedPiece.row);
-    drawPiece(selectedPiece, (currentTurn === BLACK_TEAM));
+    drawPiece(selectedPiece, false);
 }
 
 function drawTeamOfPieces(teamOfPieces, bBlackTeam) {
@@ -514,9 +514,10 @@ function processMove(clickedBlock) {
             addToTable(convertToStdCoordinate(selectedPiece),
                 convertToStdCoordinate(clickedBlock), 'white');
             movePiece(clickedBlock, enemyPiece);
+            currentTurn = BLACK_TEAM;
+            WaitingEnemyMove();
         }
-        currentTurn = BLACK_TEAM;
-        WaitingEnemyMove();
+        
     }
 }
 
