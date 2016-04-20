@@ -504,6 +504,16 @@ function processMove(clickedBlock) {
 		checkIfPieceClicked(clickedBlock, json.black);
 	} else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
 		answer = '';
+		if((selectedPiece.piece === PIECE_PAWN) && Math.abs(selectedPiece.col - clickedBlock.col) === 1
+			&& Math.abs(selectedPiece.row - clickedBlock.row) === 1 && enemyPiece === null){
+			addToTable(convertToStdCoordinate(selectedPiece),
+				convertToStdCoordinate(clickedBlock), 'black');
+			movePiece(clickedBlock, enemyPiece);
+			clickedBlock.row += 1;
+			enemyPiece = blockOccupiedByEnemy(clickedBlock, json.white);
+			drawBlock(enemyPiece.col,enemyPiece.row);
+			json.white[enemyPiece.position].status = TAKEN;
+		}
 		if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2) {
 			if (selectedPiece.col - clickedBlock.col === 2) {
 				addToTable('0-0','','black');
@@ -555,6 +565,16 @@ function longCastling(clickedBlock, enemyPiece) {
 function processMoveForEnemy(clickedBlock) {
 	var enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
 
+	if((selectedPiece.piece === PIECE_PAWN) && Math.abs(selectedPiece.col - clickedBlock.col) === 1
+		&& Math.abs(selectedPiece.row - clickedBlock.row) === 1 && enemyPiece === null){
+		addToTable(convertToStdCoordinate(selectedPiece),
+			convertToStdCoordinate(clickedBlock), 'white');
+		movePiece(clickedBlock, enemyPiece);
+		clickedBlock.row -= 1;
+		enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
+		drawBlock(enemyPiece.col,enemyPiece.row);
+		json.black[enemyPiece.position].status = TAKEN;
+	}
 	if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2){
 		if (selectedPiece.col - clickedBlock.col === 2) {
 			addToTable('0-0','','white');
