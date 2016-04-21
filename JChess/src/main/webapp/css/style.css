@@ -440,5 +440,48 @@ margin-left:15px;
 }
 .abc{
 margin-top:15px;
+}
+.congrat{
+   font-size: 40px;
+   line-height: 60px;
+   text-align: center;
+ }
+ .congrat-title{
+   font-size: 50px;
+   line-height: 70px;
+   text-align: center;
+ }
+.congrat-btn{
+  outline: 0;
+  cursor: pointer;
+  position: relative;
+  display: inline-block;
+  background: 0;
+  width: 240px;
+  border: 2px solid #e3e3e3;
+  padding: 20px 0;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+  overflow: hidden;
+  -webkit-transition: .3s ease;
+  transition: .3s ease;
 
 }
+
+.button-container  button:before{
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  background: #26a69a;
+  width: 30px;
+  height: 30px;
+  border-radius: 100%;
+  margin: -15px 0 0 -15px;
+  opacity: 0;
+  -webkit-transition: .3s ease;
+  transition: .3s ease;
+  }

@@ -1,16 +1,17 @@
 $(document).ready(function(){
-    $('Search').on('click',function(){
+    $('#Search').on('click',function(){
         var dataToServer = {
-            active: 'search'
-        }
-        $.post('main',dataToServer,function(data){
-            if(data.color === 'white'){
-                window.location.href = '/jchess/whiteBoard.jsp';
+            action: 'search'
+        };
+        $.post('main',$.param(dataToServer),function(color){
+            if(color === 'white'){
+                window.location.href = 'whiteBoard.jsp';
             }
-            if(data.color === 'black'){
-                window.location.href = '/jchess/blackBoard.jsp';
+            if(color === 'black'){
+                window.location.href = 'blackBoard.jsp';
             }
         });
-    })
-    return false;
-})
+        return false;
+    });
+    
+});

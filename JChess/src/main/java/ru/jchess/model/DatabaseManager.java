@@ -1,7 +1,10 @@
 package ru.jchess.model;
+
 import org.sql2o.Sql2o;
 
 import org.sql2o.Connection;
+
+import java.util.List;
 
 /**
  * Created by dima on 20.04.16.
@@ -20,6 +23,8 @@ public class DatabaseManager {
     static {
         sql2o = new Sql2o(DB_URL, DB_USER, DB_PASS);
     }
+
+
 
     public DatabaseManager() {
         try {
@@ -64,15 +69,53 @@ public class DatabaseManager {
         }
     }
 
+    public User getUserProfile(String login) {
+        User user = new User();
+        user.setLogin(login);
+        String sql =
+                "SELECT count_games, count_wins, count_draws" +
+                        " FROM " + USER_TABLE + " " +
+                        " WHERE login = :loginParam;";
+
+        try (Connection con = sql2o.open()) {
+            List<Pack> packs = con.createQuery(sql)
+                    .addParameter("loginParam", login)
+                    .executeAndFetch(Pack.class);
+            if (packs.size() != 1) {
+                throw new RuntimeException("there is more than 1 "+login+" login profile");
+            }
+            Pack pack = packs.get(0);
+            user.setCount_games(pack.count_games);
+            user.setCount_draws(pack.count_draws);
+            user.setCount_wins(pack.count_wins);
+
+        } catch (Exception e) {
+            throw e; //Unexpected exception
+        }
+        return user;
+    }
+
     public boolean isUserExist(User user) {
         final String findUser =
                 "SELECT count(*) " +
-                        " FROM " + USER_TABLE  +
+                        " FROM " + USER_TABLE +
                         " WHERE login = :loginParam AND hash_pass = :hashPassParam;";
         Long result = (Long) sql2o
                 .createQuery(findUser)
                 .addParameter("loginParam", user.getLogin())
                 .addParameter("hashPassParam", user.getHashPass())
+                .executeScalar();
+        return result > 0;
+    }
+
+    public boolean isLoginExist(String login) {
+        final String findUser =
+                "SELECT count(*) " +
+                        " FROM " + USER_TABLE +
+                        " WHERE login = :loginParam;";
+        Long result = (Long) sql2o
+                .createQuery(findUser)
+                .addParameter("loginParam", login)
                 .executeScalar();
         return result > 0;
     }
