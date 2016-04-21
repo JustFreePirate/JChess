@@ -34,6 +34,9 @@ public class Move {
     static Move promotion (Person person, ChessPiece chessPiece) {
         return new Move (person, Decision.PROMOTION, null, null, chessPiece);
     }
+    static Move enpassant (Person person, Cell from, Cell to) {
+        return new Move (person, Decision.EN_PASSANT, from, to, null);
+    }
 
     //getters
     public Person getPerson(){
