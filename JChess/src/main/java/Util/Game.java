@@ -50,9 +50,41 @@ public class Game {
         }
     }
 
+    private Move parseDecision(Move move){
+        int temp = move.getFrom().getColumn().ordinal() - move.getTo().getColumn().ordinal();
+        if ((move.getFrom() == Cell.E1 || move.getFrom() == Cell.E8)&& Math.abs(temp) == 2){
+            if (temp < 0) {
+                return Move.castlingShort(move.getPerson());
+            } else {
+                return Move.castlingLong(move.getPerson());
+            }
+        }
+
+        if (board[move.getFrom().ordinal()] == ChessPiece.pW){
+            if(move.getFrom().go(1,1) == move.getTo() && isNone(board, move.getFrom().go(1,1))){
+                return Move.enpassant(move.getPerson(),move.getFrom(),move.getTo());
+            }
+            if(move.getFrom().go(-1,1) == move.getTo() && isNone(board, move.getFrom().go(-1,1))){
+                return Move.enpassant(move.getPerson(),move.getFrom(),move.getTo());
+            }
+        }
+        if (board[move.getFrom().ordinal()] == ChessPiece.pB){
+            if(move.getFrom().go(1,-1) == move.getTo() && isNone(board, move.getFrom().go(1,-1))){
+                return Move.enpassant(move.getPerson(),move.getFrom(),move.getTo());
+            }
+            if(move.getFrom().go(-1,-1) == move.getTo() && isNone(board, move.getFrom().go(-1,-1))){
+                return Move.enpassant(move.getPerson(),move.getFrom(),move.getTo());
+            }
+        }
+
+        return move;
+    }
 
     //TODO: говно какое-то
-    public boolean doIt (Move move){
+    public boolean doIt (Move moveArg){
+        Move move = parseDecision(moveArg);
+
+
         if (isGameOver) {
             throw new RuntimeException("The game is over");
         } else if (move.getDecision() != Decision.PROMOTION && checkPawnOnTheEdge(this.board)) {
@@ -104,6 +136,12 @@ public class Game {
             case PROMOTION:
                 if (checkPawnOnTheEdge(this.board)) pawnPromotion(move);
                 else throw new RuntimeException("nothing to promotion");
+                break;
+
+            case EN_PASSANT:
+                if (checkEnPassant(this.board, move)) doEnPassant(move);
+                else throw new RuntimeException("EN_PASSANT is incorrect");
+                break;
 
             default:
                 break;
@@ -112,15 +150,10 @@ public class Game {
     }
 
 
-
-
     //Получим ход противника
     public Move getLastMove () {
         return history.getLast();
     }
-
-
-
 
 
     //Если игра закончена -- вернет победителя
@@ -189,7 +222,12 @@ public class Game {
                 default: throw new RuntimeException("Unknown castling");
             }
         }
+    }
 
+    //Взятие на проходе
+    private void doEnPassant (Move move) {
+        this.board = step(this.board, move);
+        board[getLastMove().getTo().ordinal()] = ChessPiece.n;
     }
 
     private void initializeBoard (){
@@ -594,6 +632,28 @@ public class Game {
 
         // Если хотя бы одна пешка стоит на краю -- нужно делать превращение
         return nP > 0;
+    }
+
+    //Чекнуть взятие на проходе
+    private boolean checkEnPassant (ChessPiece[] board, Move move) {
+        Color color = getColorOfPerson(move.getPerson());
+        Move lasMove = this.getLastMove();
+
+        Cell from = lasMove.getFrom();
+        Cell to = lasMove.getTo();
+
+        int centr = to.getRow().ordinal() - from.getRow().ordinal();
+
+        //Идейно, нужно бы ещё чекнуть _откуда_ сделан ход. Но тут это в другом месте
+        if (Math.abs(centr) != 2) {
+            return false;
+        } else {
+            if(move.getTo() == from.go(0,centr/2)){ //TODO: или минус, над тестить
+                return true;
+            }
+        }
+
+        return false;
     }
 //======================================================================================================================
 

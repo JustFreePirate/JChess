@@ -16,7 +16,7 @@ $(document).ready(function () {
         if (dataToServer.login != '' && dataToServer.password != '') {
             $.post('login', $.param(dataToServer), function (data) {
                 if (data === 'sign_in_success') {
-                    window.location.href = 'main.jsp';
+                    window.location.href = 'main';
                 } else {
                     if (data === 'login_password_invalid') {
                         login.setCustomValidity("Incorrect login/password");
@@ -46,7 +46,7 @@ $(document).ready(function () {
             if (dataToServer.login != '' && dataToServer.password != '') {
                 $.post('login', $.param(dataToServer), function (data) {
                     if (data === 'sign_up_success') {
-                        window.location.href = 'main.jsp';
+                        window.location.href = 'main';
                     } else {
                         if(data === 'sign_up_filter_failure')
                             login.setCustomValidity("Invalid login");

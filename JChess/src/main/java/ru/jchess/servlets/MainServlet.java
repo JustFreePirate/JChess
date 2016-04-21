@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
@@ -19,27 +20,23 @@ import static ru.jchess.model.Constants.*;
  * Created by dima on 09.04.16.
  */
 public class MainServlet extends HttpServlet {
-    private final static String ACTION_SIGN_IN = "sign in";
-    private final static String ACTION_SIGN_OUT = "sign out";
-
+    public static String ACTION_SEARCH = "search";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-//        HttpSession session = request.getSession();
-//        String action = request.getParameter("action");
-//
-//
-//        session.setAttribute("login", "Dima");
-//        if (ACTION_SIGN_IN.equals(action)) {
-//            String url = request.getContextPath() + "/login";
-//            response.sendRedirect(url);
-//        } else if (ACTION_SIGN_OUT.equals(action)) {
-//            //do something to log out from session
-//            //TODO
-//            session.setAttribute("login", null);
-//            request.getRequestDispatcher("/index.jsp").forward(request,response);
-//        }
-
+        boolean ajax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+        if (ajax) {
+            String action = request.getParameter("action");
+            if (ACTION_SEARCH.equals(action)) {
+                Writer writer = response.getWriter();
+                response.setContentType("text/plain");
+                response.setCharacterEncoding("UTF-8");
+//                try {
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e) {}
+                writer.write("white");
+                writer.close();
+            }
+        }
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
