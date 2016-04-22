@@ -13,7 +13,7 @@ public class DatabaseManager {
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     static final String DB_URL = "jdbc:mysql://localhost:3306/jchess_db";
 
-    static final String DB_USER = "admin";
+    static final String DB_USER = "root";
     static final String DB_PASS = "admin";
 
     static final String USER_TABLE = "users";
