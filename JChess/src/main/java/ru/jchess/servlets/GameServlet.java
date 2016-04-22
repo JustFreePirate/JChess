@@ -1,8 +1,6 @@
 package ru.jchess.servlets;
 
-import Util.Color;
-import Util.Game;
-import Util.Move;
+import Util.*;
 import com.google.gson.Gson;
 import ru.jchess.model.GameContainer;
 import ru.jchess.model.JsonPackMove;
@@ -23,43 +21,74 @@ public class GameServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         boolean ajax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (ajax && LoginServlet.isSignedIn(request)) {
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType("application/json");
             Writer writer = response.getWriter();
+            response.setCharacterEncoding("UTF-8");
             GameContainer gameContainer = MainServlet.getCurrentGameContainer(request.getSession());
+            Color myColor = gameContainer.getMyColor();
             if (gameContainer != null) { //Если игрок сейчас играет партию
                 Game game = gameContainer.getGame();
                 String action = request.getParameter("action");
                 if (WAIT_OPPONENT_MOVE.equals(action)) {
                     Object myMonitor = gameContainer.getMyMonitor();
                     //ждем хода оппонента
-                    Color myColor = gameContainer.getMyColor();
                     synchronized (myMonitor) {
                         while (myColor != game.getColor()) { //пока мой цвет не станет цветом того, кто должен ходить
                             try {
                                 myMonitor.wait();
-                            } catch (InterruptedException e) {}
+                            } catch (InterruptedException e) {
+                            }
                         }
                         Move move = game.getLastMove();
-                        String responseAction;
-                        if (game.isCheckmate()) {
-                            responseAction = CHECKMATE;
-                        } else if (game.isDraw()) {
-                            responseAction = DRAW;
-                        } else if (game.checkCheck()) {
-                            responseAction = CHECK;
-                        } else {
-                            responseAction = MOVE;
-                        }
-                        JsonPackMove jsonPackMove = new JsonPackMove(move,responseAction);
+                        String responseAction = getBoardState(game);
+                        JsonPackMove jsonPackMove = new JsonPackMove(move, responseAction);
+                        response.setContentType("application/json");
                         writer.write(new Gson().toJson(jsonPackMove));
                         writer.close();
                     }
                 } else if (MOVE.equals(action)) {
                     //Проверим наш ли сейчас ход
-
+                    String from = request.getParameter("from");
+                    String to = request.getParameter("to");
+                    Person person = getMyColorPerson(gameContainer.getMyColor());
+                    Move move = Move.goFromTo(person, Cell.valueOf(from), Cell.valueOf(to));
+                    //сформировали ход
+                    String respString;
+                    try {
+                        game.doIt(move);
+                        respString = getBoardState(game);
+                    } catch (Exception e) {
+                        //ход был некорректен
+                        respString = MOVE_NOT_CORRECT;
+                    }
+                    writer.write(respString);
+                    writer.close();
                 }
             }
+        }
+    }
+
+    private String getBoardState(Game game) {
+        String state;
+        if (game.isCheckmate()) {
+            state = CHECKMATE;
+        } else if (game.isDraw()) {
+            state = DRAW;
+        } else if (game.checkCheck()) {
+            state = CHECK;
+        } else {
+            state = MOVE;
+        }
+        return state;
+    }
+
+    private Person getMyColorPerson(Color color) {
+        switch (color) {
+            case BLACK:
+                return BLACK_PERSON;
+            case WHITE:
+                return WHITE_PERSON;
+            default:
+                throw new RuntimeException("No person for this color");
         }
     }
 

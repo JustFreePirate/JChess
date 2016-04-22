@@ -50,7 +50,8 @@ public class MainServlet extends HttpServlet {
                             //Записываем в сессию информацию о текущей партии
                             addGameToSession(request.getSession(), myGameContainer);
                             //говорим о цвете партии игроку (он сам редирект делает)
-                            sendRedirect(response, myGameContainer.getMyColor());
+                            //sendRedirect(response, myGameContainer.getMyColor());
+                            response.getWriter().write(myGameContainer.getMyColor().name());
                             return;
                         }
                     }
@@ -71,7 +72,8 @@ public class MainServlet extends HttpServlet {
                         }
                     }
                     addGameToSession(request.getSession(), gameContainer);
-                    sendRedirect(response, gameContainer.getMyColor());
+                    //sendRedirect(response, gameContainer.getMyColor());
+                    response.getWriter().write(gameContainer.getMyColor().name());
                     return;
                 }
             }

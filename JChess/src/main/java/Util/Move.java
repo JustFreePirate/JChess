@@ -19,7 +19,7 @@ public class Move {
     }
 
     //Все решения, которые игрок может принять за всё время игры
-    static Move goFromTo (Person person, Cell from, Cell to){
+    public static Move goFromTo (Person person, Cell from, Cell to){
         return new Move(person, Decision.STEP, from, to, null);
     }
     static Move giveUp (Person person){
