@@ -55,7 +55,7 @@ function convertToStdCoordinate(coordinate) {
 }
 
 function sendToServer(json) {
-    $.post('game', json, function (data) {
+    $.post('game', $.param(json), function (data) {
         answer = data;
     })
 }
@@ -105,11 +105,6 @@ function blockOccupied(clickedBlock) {
 function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
     var jsonToServer;
-    jsonToServer = {
-        action: "move",
-        from: convertToStdCoordinate(selectedPiece),
-        to: convertToStdCoordinate(clickedBlock)
-    }
     //sendToServer(jsonToServer);
     answer = 'checkmate';
     if (answer === 'correct' || answer === 'check' || answer === 'checkmate') {
@@ -493,6 +488,8 @@ function movePieceForEnemy(clickedBlock, enemyPiece) {
 }
 
 
+
+
 function processMove(clickedBlock) {
     var pieceAtBlock = getPieceAtBlock(clickedBlock, json.white),
         enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
@@ -638,7 +635,7 @@ function endGame(bool) {
     if (bool) {
         jQuery.noConflict();
         text.innerHTML = 'Win!';
-        modal.modal('show');
+       // $('#myModal').modal('show');
     } else {
         text.innerHTML = 'Lose =(';
         modal.modal("show");

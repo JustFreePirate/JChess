@@ -1,8 +1,8 @@
 <html>
     <head>
         <title>Game page</title>
-        <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
-        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/jchess/js/chess_board_whitePlayer.js"></script>
         <link rel="stylesheet" href="css/style.css">
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" >
@@ -61,6 +61,10 @@
                       </div>
                 </div>
             </div>
+
+            <script>
+                $('#myModal').modal('show');
+            </script>
 
     </body>
 </html>
