@@ -4,12 +4,9 @@
         <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
         <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/jchess/js/chess_board_whitePlayer.js"></script>
-        <link rel="stylesheet" href="css/style.css">
         <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet" >
         <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
-
-
-
+        <link rel="stylesheet" href="css/style.css">
     </head>
     <body onload='draw();'>
        		<div  class="row">
@@ -24,7 +21,6 @@
                         <img id="abc" src="img/abc.png" width="800" height="30" class="abc">
                         </div>
                     </div>
-
                 </div>
                 <div class="pull-left" width="30" >
                  <img id="1234" src="img/123.png" width="30" height="800" class="num">
@@ -32,17 +28,12 @@
     		    <div class="col-md-3">
                     <table id="table" class="table table-striped">
                     <thead><tr><th>White</th><th>Black</th></tr></thead>
-                    <tbody>
-
-                      </tbody>
+                        <tbody>
+                        </tbody>
                     </table>
-
-
-
-                      <!-- Modal -->
+                    <!-- Modal -->
                       <div class="modal fade" id="myModal" role="dialog">
                         <div class="modal-dialog">
-
                           <!-- Modal content-->
                           <div class="modal-content">
                             <div class="modal-header">
@@ -50,17 +41,15 @@
                               <h4 class=" title modal-title congrat-title">Game over</h4>
                             </div>
                             <div class="modal-body">
-                              <p id="endText" class="congrat">You win or you lose. TODO - JS</p>
+                              <p id ="endText" class="congrat"></p>
                             </div>
-                            <div class="modal-footer button-container">
-                              <a  href="main.jsp"><button class = "congrat-btn" type="button"><span>Go to main menu</span></button></a>
+                            <div class="border-end">
+                              <a  href="main.jsp"><button class = "button-end" type="button" align="center"><span>Go to main menu</span></button></a>
                             </div>
                           </div>
-
-                        </div>
                       </div>
+                    <!-- Modal -->
                 </div>
             </div>
-
     </body>
 </html>
