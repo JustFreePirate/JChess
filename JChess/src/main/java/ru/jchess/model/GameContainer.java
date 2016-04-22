@@ -10,10 +10,10 @@ import java.util.Random;
  * Created by dima on 22.04.16.
  */
 public class GameContainer {
-    public volatile Object myMonitor; //монитор того, кто создал игру
-    public volatile Object opponentMonitor; //монитор того, кто подключился
-    public volatile Game game;
-    public volatile Color myColor;
+    private volatile Object myMonitor; //монитор того, кто создал игру
+    private volatile Object opponentMonitor; //монитор того, кто подключился
+    private volatile Game game;
+    private volatile Color myColor;
     public GameContainer(Object monitor) {
         myMonitor = monitor;
         myColor = Color.None;
@@ -35,8 +35,8 @@ public class GameContainer {
         }
     }
 
-    public void setOppositeColor() {
-        if (myColor == Color.BLACK)
+    public void setOppositeColor(Color color) {
+        if (color == Color.BLACK)
             myColor = Color.WHITE;
         else
             myColor = Color.BLACK;

@@ -1,6 +1,7 @@
 package ru.jchess.servlets;
 
 import Util.Color;
+import Util.Game;
 import ru.jchess.model.GameContainer;
 import ru.jchess.model.User;
 
@@ -25,35 +26,31 @@ public class MainServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         boolean ajax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
-        if (ajax) {
+        if (ajax && LoginServlet.isSignedIn(request)) {
             String action = request.getParameter("action");
             if (ACTION_SEARCH.equals(action)) {
-                Writer writer = response.getWriter();
-                response.setContentType("text/plain");
-                response.setCharacterEncoding("UTF-8");
-
                 //сделаем монитор. С его помощью будет в последствии связываться с сервлетом соперника (notify)
                 Object myMonitor = new Object();
                 ConcurrentLinkedDeque<GameContainer> waitingQueue = getWaitingQueue(); //получаем очередь ждущих
                 synchronized (waitingQueue) {
                     if (!waitingQueue.isEmpty()) {
                         GameContainer opponentGameContainer = waitingQueue.pop();
-                        Object opponentMonitor = opponentGameContainer.myMonitor;
+                        Object opponentMonitor = opponentGameContainer.getMyMonitor();
                         synchronized (opponentMonitor) {
                             //заполняем его контейнер
-                            opponentGameContainer.opponentMonitor = myMonitor;
+                            opponentGameContainer.setOpponentMonitor(myMonitor);
                             //заполняем свой контейнер
                             GameContainer myGameContainer = new GameContainer(myMonitor);
-                            myGameContainer.myMonitor = myMonitor;
-                            myGameContainer.opponentMonitor = opponentMonitor;
+                            myGameContainer.setMyMonitor(myMonitor);
+                            myGameContainer.setOpponentMonitor(opponentMonitor);
+                            myGameContainer.setOppositeColor(opponentGameContainer.getMyColor());
+                            myGameContainer.setGame(opponentGameContainer.getGame());
 
                             opponentMonitor.notify(); //оповещаем соперника о том, что мы подключились
                             //Записываем в сессию информацию о текущей партии
                             addGameToSession(request.getSession(), myGameContainer);
-                            //TODO сделать информацию о самой игре, о завершении, рандомизация цвета.
                             //говорим о цвете партии игроку (он сам редирект делает)
-                            writer.write("white");
-                            writer.close();
+                            sendRedirect(response, myGameContainer.getMyColor());
                             return;
                         }
                     }
@@ -62,21 +59,29 @@ public class MainServlet extends HttpServlet {
                 //Сюда попадаем только если в очереди никого
                 //waiting
                 GameContainer gameContainer = new GameContainer(myMonitor);
-                waitingQueue.push(gameContainer);
+                gameContainer.chooseRandomColor();
+                Game game = new Game(WHITE_PERSON, BLACK_PERSON); //создаем игру (пусть конструктор не смущает)
+                gameContainer.setGame(game); //кидаем игру в контейнер
+                waitingQueue.push(gameContainer); //кидаем контейнер в очередь ожидания
                 synchronized (myMonitor) {
                     while (gameContainer.size() < 2) {
                         try {
-                            myMonitor.wait();
+                            myMonitor.wait(); //ждем коннекта
                         } catch (InterruptedException e) {
                         }
                     }
-
                     addGameToSession(request.getSession(), gameContainer);
-                    writer.write("black");
-                    writer.close();
+                    sendRedirect(response, gameContainer.getMyColor());
                     return;
                 }
             }
+        }
+    }
+
+    private void sendRedirect(HttpServletResponse response, Color color) throws IOException {
+        switch (color) {
+            case BLACK: response.sendRedirect("blackBoard.jsp"); return;
+            case WHITE: response.sendRedirect("whiteBoard.jsp"); return;
         }
     }
 
@@ -96,9 +101,10 @@ public class MainServlet extends HttpServlet {
     }
 
 
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //проверим залогинен ли.
-        if (isSignedIn(request)) {
+        if (LoginServlet.isSignedIn(request)) {
                 GameContainer currentGameContainer = getCurrentGameContainer(request.getSession());
                 if (currentGameContainer == null) {
                     request.getRequestDispatcher("/main.jsp").forward(request, response);
@@ -119,17 +125,9 @@ public class MainServlet extends HttpServlet {
 
         }
 
-    private GameContainer getCurrentGameContainer(HttpSession session) {
+    public static GameContainer getCurrentGameContainer(HttpSession session) {
         return (GameContainer) session.getAttribute(CURRENT_GAME_CONTAINER);
     }
 
-    private boolean isSignedIn(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        User user = (User) session.getAttribute(USER_PROFILE);
-        if (user == null) {
-            return false;
-        } else {
-            return true;
-        }
-    }
+
 }

@@ -23,7 +23,7 @@ public class Game {
     private ChessPiece[] board;         //Доска
     private Deque<Move> history;
 
-    Game (Person person1, Person person2) {
+    public Game (Person person1, Person person2) {
         this.person1 = person1;
         this.person2 = person2;
 
@@ -36,7 +36,7 @@ public class Game {
     }
 
     //TODO: не тестил
-    Game (Person person1, Person person2, Deque<Move> history) {
+    public Game (Person person1, Person person2, Deque<Move> history) {
         this.person1 = person1;
         this.person2 = person2;
 
