@@ -14,5 +14,7 @@ public class Constants {
     public final static Person BLACK_PERSON = new Person("black");
     public final static String WAIT_OPPONENT_MOVE = "getEnemyMove";
     public final static String MOVE = "move";
+    public final static String CHECKMATE = "checkmate";
+    public final static String DRAW = "draw";
 
 }

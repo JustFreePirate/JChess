@@ -80,6 +80,14 @@ public class Game {
         return move;
     }
 
+    public boolean isCheckmate() {
+        return isGameOver && !isDraw();
+    }
+
+    public boolean checkCheck () {
+        return checkCheck(this.board)!= Color.None;
+    }
+
     public Color getColor (){
         if (history.size() == 0){
             return Color.WHITE;
