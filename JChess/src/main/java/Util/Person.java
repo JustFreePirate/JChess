@@ -5,7 +5,7 @@ package Util;
  */
 public class Person {
     public String name;
-    Person (String name){
+    public Person (String name){
         this.name = name;
     }
 }

@@ -23,7 +23,7 @@ public class Game {
     private ChessPiece[] board;         //Доска
     private Deque<Move> history;
 
-    Game (Person person1, Person person2) {
+    public Game (Person person1, Person person2) {
         this.person1 = person1;
         this.person2 = person2;
 
@@ -36,7 +36,7 @@ public class Game {
     }
 
     //TODO: не тестил
-    Game (Person person1, Person person2, Deque<Move> history) {
+    public Game (Person person1, Person person2, Deque<Move> history) {
         this.person1 = person1;
         this.person2 = person2;
 
@@ -80,6 +80,14 @@ public class Game {
         return move;
     }
 
+    public Color getColor (){
+        if (history.size() == 0){
+            return Color.WHITE;
+        } else {
+            return reverseColor(getColorOfPerson(history.getLast().getPerson()));
+        }
+    }
+
     //TODO: говно какое-то
     public boolean doIt (Move moveArg){
         Move move = parseDecision(moveArg);
@@ -89,6 +97,10 @@ public class Game {
             throw new RuntimeException("The game is over");
         } else if (move.getDecision() != Decision.PROMOTION && checkPawnOnTheEdge(this.board)) {
             throw new RuntimeException("The game is over");
+        }
+
+        if (this.getColor() != getColorOfPerson(move.getPerson())) {
+            throw new RuntimeException("Not your turn");
         }
 
         switch (move.getDecision()) {
@@ -294,6 +306,9 @@ public class Game {
     }
     private boolean isNone(ChessPiece[] board, Cell cell) {
         return board[cell.ordinal()].getColor() == Color.None;
+    }
+    private Color reverseColor(Color color){
+        return color == Color.None ? Color.None : color == Color.WHITE ? Color.BLACK : Color.WHITE;
     }
 
 //===== Всякие штуки для работы с клеточками и фигурами ================================================================
