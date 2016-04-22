@@ -12,5 +12,7 @@ public class Constants {
     public final static String CURRENT_GAME_CONTAINER = "current_game_container";
     public final static Person WHITE_PERSON = new Person("white");
     public final static Person BLACK_PERSON = new Person("black");
+    public final static String WAIT_OPPONENT_MOVE = "getEnemyMove";
+    public final static String MOVE = "move";
 
 }
