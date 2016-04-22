@@ -56,9 +56,23 @@ function convertToStdCoordinate(coordinate) {
 }
 
 function sendToServer(json) {
-    $.post('game', $.param(json), function (data) {
+    /*$.post('game', $.param(json), function (data) {
         answer = data;
-    })
+    })*/
+    function sendToServer(json) {
+        /*$.post('game', $.param(json), function (data) {
+         answer = data;
+         })*/
+        $.ajax({
+            type: 'POST',
+            url: 'game',
+            data: $.param(json),
+            success: function (data) {
+                answer = data;
+            },
+            async:false
+        });
+    }
 }
 
 function screenToBlock(x, y) {
@@ -115,7 +129,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: convertToStdCoordinate(clickedBlock)
     }
     sendToServer(jsonToServer);
-    if (answer === 'correct' || answer === 'check' || answer === 'checkmate') {
+    if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
         return (true);
     } else {
         return false;
