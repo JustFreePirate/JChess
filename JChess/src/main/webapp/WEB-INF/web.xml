@@ -40,7 +40,7 @@ When matching to which servlet a request is sent is dependent on the matching ru
 
 
     <welcome-file-list>
-        <welcome-file>auth.jsp</welcome-file>
+        <welcome-file>main</welcome-file>
     </welcome-file-list>
 
 </web-app>
