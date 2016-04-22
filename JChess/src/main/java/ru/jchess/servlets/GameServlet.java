@@ -44,8 +44,10 @@ public class GameServlet extends HttpServlet {
                         String responseAction;
                         if (game.isCheckmate()) {
                             responseAction = CHECKMATE;
-                        } if (game.isDraw()) {
+                        } else if (game.isDraw()) {
                             responseAction = DRAW;
+                        } else if (game.checkCheck()) {
+                            responseAction = CHECK;
                         } else {
                             responseAction = MOVE;
                         }

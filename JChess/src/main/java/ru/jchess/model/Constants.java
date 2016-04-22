@@ -16,5 +16,6 @@ public class Constants {
     public final static String MOVE = "move";
     public final static String CHECKMATE = "checkmate";
     public final static String DRAW = "draw";
+    public final static String CHECK = "check";
 
 }
