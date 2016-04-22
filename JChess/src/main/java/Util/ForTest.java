@@ -17,10 +17,12 @@ public class ForTest {
         Person Nick = new Person("Nick");
 
         Game game = new Game(Anna, Nick);
+        //game.doIt(Move.goFromTo(Anna,Cell.E2,Cell.E4)); System.out.println(game);
+        //System.out.println(game.getColor());
 
 
         //Взятие на проходе
-//        game.doIt(Move.goFromTo(Anna,Cell.E2,Cell.E4)); System.out.println(game);
+//
 //        game.doIt(Move.goFromTo(Anna,Cell.E4,Cell.E5)); System.out.println(game);
 //        game.doIt(Move.goFromTo(Nick,Cell.D7,Cell.D5)); System.out.println(game);
 //        game.doIt(Move.goFromTo(Anna,Cell.E5,Cell.D6)); System.out.println(game);
