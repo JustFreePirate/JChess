@@ -19,7 +19,7 @@ public class GameServlet extends HttpServlet {
             GameContainer gameContainer = MainServlet.getCurrentGameContainer(request.getSession());
             if (gameContainer != null) {
                 Game game = gameContainer.getGame();
-                
+
             }
         }
     }
