@@ -44,6 +44,7 @@ public class GameServlet extends HttpServlet {
                         response.setContentType("application/json");
                         writer.write(new Gson().toJson(jsonPackMove));
                         writer.close();
+                        getServletContext().log(new Gson().toJson(jsonPackMove)); //log
                     }
                 } else if (MOVE.equals(action)) {
                     //Проверим наш ли сейчас ход
@@ -56,14 +57,25 @@ public class GameServlet extends HttpServlet {
                     try {
                         game.doIt(move);
                         respString = getBoardState(game);
+                        getServletContext().log(respString); //log
                     } catch (Exception e) {
                         //ход был некорректен
+                        getServletContext().log(e.getMessage()); //log
                         respString = MOVE_NOT_CORRECT;
                     }
                     writer.write(respString);
                     writer.close();
+                    //сообщим оппоненту, что походили
+                    synchronized (gameContainer.getOpponentMonitor()) {
+                        gameContainer.getOpponentMonitor().notify();
+                    }
                 }
+            } else {
+                getServletContext().log("gameContainer == null"); //log
             }
+
+        } else {
+            getServletContext().log("not ajax or not signed in"); //log
         }
     }
 
