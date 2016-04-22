@@ -56,7 +56,7 @@ function convertToStdCoordinate(coordinate) {
 }
 
 function sendToServer(json) {
-    $.post('game', json, function (data) {
+    $.post('game', $.param(json), function (data) {
         answer = data;
     })
 }
@@ -115,7 +115,11 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: convertToStdCoordinate(clickedBlock)
     }
     sendToServer(jsonToServer);
-    return (answer === 'correct');
+    if (answer === 'correct' || answer === 'check' || answer === 'checkmate') {
+        return (true);
+    } else {
+        return false;
+    }
 
 
 }
@@ -691,61 +695,7 @@ function WaitingEnemyMove() {
         }
     });
 
-    /*if(temp === 3){
-     selectedPiece = {
-     piece: PIECE_QUEEN,
-     row: 0,
-     col: 4,
-     position: 3,
-     status: 0
-     }
-     clickedBlock = {
-     row: 3,
-     col: 3
-     }
-     }
-     if(temp === 2){
-     selectedPiece = {
-     piece: PIECE_KING,
-     row: 0,
-     col: 3,
-     position: 3,
-     status: 0
-     };
-     var clickedBlock = {
-     row: 0,
-     col: 1
-     }
-     temp++;
-     }
-     if(temp === 1){
-     selectedPiece = {
-     piece: PIECE_BISHOP,
-     row: 0,
-     col: 2,
-     position: 2,
-     status: 0
-     };
-     var clickedBlock = {
-     row: 5,
-     col: 5
-     }
-     temp++;
-     }
-     if(temp === 0){
-     selectedPiece = {
-     piece: PIECE_ROUKE,
-     row: 0,
-     col: 1,
-     position: 1,
-     status: 0
-     };
-     var clickedBlock = {
-     row: 6,
-     col: 6
-     }
-     temp ++;
-     }*/
+   
 
 }
 
