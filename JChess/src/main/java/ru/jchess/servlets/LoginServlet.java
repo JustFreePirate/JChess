@@ -99,6 +99,16 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute(USER_PROFILE, user);
     }
 
+    public static boolean isSignedIn(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute(USER_PROFILE);
+        if (user == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     private DatabaseManager getDatabaseManager() {
         ServletContext sc = this.getServletContext();
         DatabaseManager dbm = (DatabaseManager) sc.getAttribute(DB_MANAGER);

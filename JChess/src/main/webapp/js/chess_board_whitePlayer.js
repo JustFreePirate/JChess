@@ -633,12 +633,13 @@ function endGame(bool) {
     var modal = document.getElementById('myModal');
     var text = document.getElementById('endText');
     if (bool) {
-        jQuery.noConflict();
-        text.innerHTML = 'Win!';
-       // $('#myModal').modal('show');
+        text.innerHTML = 'Good Job. You win!';
+        jQuery(document).ready(function($){
+        $('#myModal').modal('show');});
     } else {
-        text.innerHTML = 'Lose =(';
-        modal.modal("show");
+        text.innerHTML = 'Sorry, you lose :(';
+        jQuery(document).ready(function($){
+        $('#myModal').modal('show');});
     }
 }
 
