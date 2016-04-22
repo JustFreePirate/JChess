@@ -376,7 +376,6 @@ canvas {
   }
 
   table{
-
   margin-top:50px;
   margin-left:20px;
    height:300px;
@@ -434,12 +433,11 @@ canvas {
     margin: 0 80px 30px;
 }
 .num{
-margin-top:20px;
-margin-left:15px;
-
+    margin-top:20px;
+    margin-left:15px;
 }
 .abc{
-margin-top:15px;
+    margin-top:15px;
 }
 .congrat{
    font-size: 40px;
@@ -451,37 +449,44 @@ margin-top:15px;
    line-height: 70px;
    text-align: center;
  }
-.congrat-btn{
-  outline: 0;
-  cursor: pointer;
-  position: relative;
+.button-end {
   display: inline-block;
-  background: 0;
-  width: 240px;
-  border: 2px solid #e3e3e3;
-  padding: 20px 0;
+  margin: 0 10px 0 0;
+  padding: 20px 20px;
   font-size: 24px;
   font-weight: 600;
   line-height: 1;
+  appearance: none;
+  box-shadow: none;
+  border-radius: 0;
   text-transform: uppercase;
-  overflow: hidden;
   -webkit-transition: .3s ease;
   transition: .3s ease;
+  width: 270px;
 
 }
-
-.button-container  button:before{
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  display: block;
-  background: #26a69a;
-  width: 30px;
-  height: 30px;
-  border-radius: 100%;
-  margin: -15px 0 0 -15px;
-  opacity: 0;
+.button-end :focus {
+  outline: none
+}
+.border-end button {
+  color: #e3e3e3;
+  background: rgba(0,0,0,0);
+  border: solid 2px #e3e3e3;
+  margin: 20px 164px;
+}
+.border-end button:hover,
+.border-end button.hover {
+  border-color: #26a69a;
+  color: #26a69a;
   -webkit-transition: .3s ease;
   transition: .3s ease;
-  }
+}
+.border-end button:active,
+.border-end button.active {
+  background: #26a69a;
+  border-color: #26a69a;
+  color: #ffffff;
+  -webkit-transition: .3s ease;
+  transition: .3s ease;
+  outline: none;
+}
