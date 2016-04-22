@@ -104,11 +104,16 @@ function blockOccupied(clickedBlock) {
 
 function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
-    var jsonToServer;
-    //sendToServer(jsonToServer);
-    answer = 'checkmate';
+    var jsonToServer = {
+        action: "move",
+        from: convertToStdCoordinate(selectedPiece), // F8
+        to: convertToStdCoordinate(clickedBlock) // G2
+    }
+    sendToServer(jsonToServer);
     if (answer === 'correct' || answer === 'check' || answer === 'checkmate') {
         return (true);
+    } else {
+        return false;
     }
 
 
@@ -688,48 +693,7 @@ function WaitingEnemyMove() {
     });
 
 
-    /*if (temp === 2) {
-     selectedPiece = {
-     piece: PIECE_KING,
-     row: 0,
-     col: 4,
-     position: 4,
-     status: 0
-     };
-     var clickedBlock = {
-     row: 0,
-     col: 6
-     }
-     temp++;
-     }
-     if (temp === 1) {
-     selectedPiece = {
-     piece: PIECE_BISHOP,
-     row: 0,
-     col: 5,
-     position: 5,
-     status: 0
-     };
-     var clickedBlock = {
-     row: 5,
-     col: 5
-     }
-     temp++;
-     }
-     if (temp === 0) {
-     selectedPiece = {
-     piece: PIECE_ROUKE,
-     row: 0,
-     col: 6,
-     position: 6,
-     status: 0
-     };
-     var clickedBlock = {
-     row: 6,
-     col: 6
-     }
-     temp++;
-     }*/
+   
 
 }
 
