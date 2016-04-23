@@ -31,15 +31,26 @@ var PIECE_PAWN = 0,
     currentTurn = WHITE_TEAM,
     selectedPiece = null;
 
+function convertToBadCoordinateForPiece(coordinate) {
+    if (coordinate[0] === 'H') return getPieceAtBlock({row: 8 - coordinate[1], col: 7}, json.black);
+    if (coordinate[0] === 'G') return getPieceAtBlock({row: 8 - coordinate[1], col: 6}, json.black);
+    if (coordinate[0] === 'F') return getPieceAtBlock({row: 8 - coordinate[1], col: 5}, json.black);
+    if (coordinate[0] === 'E') return getPieceAtBlock({row: 8 - coordinate[1], col: 4}, json.black);
+    if (coordinate[0] === 'D') return getPieceAtBlock({row: 8 - coordinate[1], col: 3}, json.black);
+    if (coordinate[0] === 'C') return getPieceAtBlock({row: 8 - coordinate[1], col: 2}, json.black);
+    if (coordinate[0] === 'B') return getPieceAtBlock({row: 8 - coordinate[1], col: 1}, json.black);
+    if (coordinate[0] === 'A') return getPieceAtBlock({row: 8 - coordinate[1], col: 0}, json.black);
+}
+
 function convertToBadCoordinate(coordinate) {
-    if (coordinate[0] === 'H') return getPieceAtBlock({row: 8 - coordinate[1], col: 7}, json.white);
-    if (coordinate[0] === 'G') return getPieceAtBlock({row: 8 - coordinate[1], col: 6}, json.white);
-    if (coordinate[0] === 'F') return getPieceAtBlock({row: 8 - coordinate[1], col: 5}, json.white);
-    if (coordinate[0] === 'E') return getPieceAtBlock({row: 8 - coordinate[1], col: 4}, json.white);
-    if (coordinate[0] === 'D') return getPieceAtBlock({row: 8 - coordinate[1], col: 3}, json.white);
-    if (coordinate[0] === 'C') return getPieceAtBlock({row: 8 - coordinate[1], col: 2}, json.white);
-    if (coordinate[0] === 'B') return getPieceAtBlock({row: 8 - coordinate[1], col: 1}, json.white);
-    if (coordinate[0] === 'A') return getPieceAtBlock({row: 8 - coordinate[1], col: 0}, json.white);
+    if (coordinate[0] === 'H') return {row: 8 - coordinate[1], col: 7};
+    if (coordinate[0] === 'G') return {row: 8 - coordinate[1], col: 6};
+    if (coordinate[0] === 'F') return {row: 8 - coordinate[1], col: 5};
+    if (coordinate[0] === 'E') return {row: 8 - coordinate[1], col: 4};
+    if (coordinate[0] === 'D') return {row: 8 - coordinate[1], col: 3};
+    if (coordinate[0] === 'C') return {row: 8 - coordinate[1], col: 2};
+    if (coordinate[0] === 'B') return {row: 8 - coordinate[1], col: 1};
+    if (coordinate[0] === 'A') return {row: 8 - coordinate[1], col: 0};
 }
 
 
@@ -662,9 +673,9 @@ function WaitingEnemyMove() {
     canvas.removeEventListener('click', board_click);
     $.post('game', {action: 'getEnemyMove'}, function (data) {
         canvas.addEventListener('click', board_click, false);
-        var move = JSON.parse(data);
+        var move = data;
         if (data.action === 'move') {
-            selectedPiece = convertToBadCoordinate(move.from);
+            selectedPiece = convertToBadCoordinateForPiece(move.from);
             ctx.lineWidth = SELECT_LINE_WIDTH;
             if ((move.from.row + move.from.col) % 2 === 1) {
                 ctx.strokeStyle = '#b58863';
@@ -685,7 +696,7 @@ function WaitingEnemyMove() {
                     (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
-                selectedPiece = convertToBadCoordinate(move.from);
+                selectedPiece = convertToBadCoordinateForPiece(move.from);
                 processMoveForEnemy(convertToBadCoordinate(move.to));
             } else {
                 if (data.action === 'checkmate') {
