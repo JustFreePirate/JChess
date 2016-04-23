@@ -68,22 +68,19 @@ function convertToStdCoordinate(coordinate) {
 
 function sendToServer(json) {
     /*$.post('game', $.param(json), function (data) {
-        answer = data;
-    })*/
-    function sendToServer(json) {
-        /*$.post('game', $.param(json), function (data) {
-         answer = data;
-         })*/
-        $.ajax({
-            type: 'POST',
-            url: 'game',
-            data: $.param(json),
-            success: function (data) {
-                answer = data;
-            },
-            async:false
-        });
-    }
+     answer = data;
+     })*/
+
+    $.ajax({
+        type: 'POST',
+        url: 'game',
+        data: $.param(json),
+        success: function (data) {
+            answer = data;
+        },
+        async: false
+    });
+    
 }
 
 function screenToBlock(x, y) {
@@ -667,12 +664,14 @@ function endGame(bool) {
     var text = document.getElementById('endText');
     if (bool) {
         text.innerHTML = 'Good Job. You win!';
-        jQuery(document).ready(function($){
-        $('#myModal').modal('show');});
+        jQuery(document).ready(function ($) {
+            $('#myModal').modal('show');
+        });
     } else {
         text.innerHTML = 'Sorry, you lose :(';
-        jQuery(document).ready(function($){
-        $('#myModal').modal('show');});
+        jQuery(document).ready(function ($) {
+            $('#myModal').modal('show');
+        });
     }
 }
 
@@ -720,7 +719,6 @@ function WaitingEnemyMove() {
         }
     });
 
-   
 
 }
 

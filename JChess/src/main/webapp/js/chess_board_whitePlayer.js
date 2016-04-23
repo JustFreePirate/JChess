@@ -66,9 +66,7 @@ function convertToStdCoordinate(coordinate) {
 }
 
 function sendToServer(json) {
-    /*$.post('game', $.param(json), function (data) {
-        answer = data;
-    })*/
+    
     $.ajax({
         type: 'POST',
         url: 'game',
