@@ -688,8 +688,8 @@ function WaitingEnemyMove() {
             } else {
                 ctx.strokeStyle = '#f0d9b5';
             }
-            ctx.strokeRect((json.white[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
-                (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+            ctx.strokeRect((json.white[3].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                (json.white[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
             processMoveForEnemy(convertToBadCoordinate(move.to));
@@ -698,8 +698,8 @@ function WaitingEnemyMove() {
             if (data.action === 'check') {
                 ctx.lineWidth = SELECT_LINE_WIDTH;
                 ctx.strokeStyle = '#ff0000';
-                ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
-                    (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                ctx.strokeRect((json.black[3].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                    (json.black[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
                 selectedPiece = convertToBadCoordinateForPiece(move.from);
@@ -708,10 +708,12 @@ function WaitingEnemyMove() {
                 if (data.action === 'checkmate') {
                     ctx.lineWidth = SELECT_LINE_WIDTH;
                     ctx.strokeStyle = '#ff0000';
-                    ctx.strokeRect((json.white[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
-                        (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                    ctx.strokeRect((json.black[3].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                        (json.black[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                         BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                         BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+                    selectedPiece = convertToBadCoordinateForPiece(move.from);
+                    processMoveForEnemy(convertToBadCoordinate(move.to));
                     endGame(false);
 
                 }
