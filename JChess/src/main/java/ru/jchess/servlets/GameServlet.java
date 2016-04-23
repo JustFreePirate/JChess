@@ -34,7 +34,9 @@ public class GameServlet extends HttpServlet {
                     synchronized (myMonitor) {
                         while (myColor != game.getColor()) { //пока мой цвет не станет цветом того, кто должен ходить
                             try {
+                                getServletContext().log("waiting"); //log
                                 myMonitor.wait();
+                                getServletContext().log("achieved move"); //log
                             } catch (InterruptedException e) {
                             }
                         }
@@ -69,6 +71,8 @@ public class GameServlet extends HttpServlet {
                     synchronized (gameContainer.getOpponentMonitor()) {
                         gameContainer.getOpponentMonitor().notify();
                     }
+                } else {
+                    getServletContext().log("unexpected action" + action); //log
                 }
             } else {
                 getServletContext().log("gameContainer == null"); //log
