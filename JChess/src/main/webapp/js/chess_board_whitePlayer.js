@@ -524,7 +524,7 @@ function processMove(clickedBlock) {
     } else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
        
         if ((selectedPiece.piece === PIECE_PAWN) && Math.abs(selectedPiece.col - clickedBlock.col) === 1
-            && Math.abs(selectedPiece.row - clickedBlock.row) === 1 && enemyPiece === null) {
+            && Math.abs(selectedPiece.row - clickedBlock.row) === 1 && enemyPiece === null) {     // Взятие на проходе
             addToTable(convertToStdCoordinate(selectedPiece),
                 convertToStdCoordinate(clickedBlock), 'white');
             movePiece(clickedBlock, enemyPiece);
@@ -534,7 +534,7 @@ function processMove(clickedBlock) {
             json.black[enemyPiece.position].status = TAKEN;
         }
         if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2) {
-            if (selectedPiece.col - clickedBlock.col === 2) {
+            if (selectedPiece.col - clickedBlock.col === 2) {                   // Рокировка
                 addToTable('0-0-0', '', 'white');
                 longCastling(clickedBlock, enemyPiece);
             } else {
@@ -542,27 +542,65 @@ function processMove(clickedBlock) {
                 shortCastling(clickedBlock, enemyPiece);
             }
         } else {
-            addToTable(convertToStdCoordinate(selectedPiece),
-                convertToStdCoordinate(clickedBlock), 'white');
+            addToTable(convertToStdCoordinate(selectedPiece),    
+                convertToStdCoordinate(clickedBlock), 'white');                 // Просто ход
             movePiece(clickedBlock, enemyPiece);
 
         }
         if (answer === 'checkmate') {
-            ctx.lineWidth = SELECT_LINE_WIDTH;
+            ctx.lineWidth = SELECT_LINE_WIDTH;                                          // Рисуем врагу красную обводку
             ctx.strokeStyle = '#ff0000';
             ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+
+            // Удаляем свою обводку
+            ctx.lineWidth = SELECT_LINE_WIDTH;
+            if ((json.white[4].col + json.white[4].row )% 2 === 1) {
+                ctx.strokeStyle = '#b58863';  // dark color
+            } else {
+                ctx.strokeStyle = '#f0d9b5';  // white color
+            }
+            ctx.strokeRect((json.white[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH ,
+                (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
+                BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
             endGame(true);
         } else {
-            if (answer === 'check') {
+            if (answer === 'check') {                                    //Рисуем врагу красную обводку
                 ctx.lineWidth = SELECT_LINE_WIDTH;
                 ctx.strokeStyle = '#ff0000';
                 ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+
+                // Удаляем свою обводку
+                ctx.lineWidth = SELECT_LINE_WIDTH;
+                if ((json.white[4].col + json.white[4].row )% 2 === 1) {
+                    ctx.strokeStyle = '#b58863';  // dark color
+                } else {
+                    ctx.strokeStyle = '#f0d9b5';  // white color
+                }
+                ctx.strokeRect((json.white[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                    (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                    BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
+                    BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+            } else {
+                if (answer === 'move') { 
+                    // удаляем свою обводку
+                    ctx.lineWidth = SELECT_LINE_WIDTH;
+                    if ((json.white[4].col + json.white[4].row )% 2 === 1) {
+                        ctx.strokeStyle = '#b58863';  // dark color
+                    } else {
+                        ctx.strokeStyle = '#f0d9b5';  // white color
+                    }
+                    ctx.strokeRect((json.white[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                        (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                        BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
+                        BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+                }
             }
             answer = '';
             currentTurn = BLACK_TEAM;
@@ -671,20 +709,19 @@ function WaitingEnemyMove() {
     canvas.removeEventListener('click', board_click);
     $.post('game', {action: 'getEnemyMove'}, function (data) {
         canvas.addEventListener('click', board_click, false);
-        var move = data;
         if (data.action === 'move') {
-            selectedPiece = convertToBadCoordinateForPiece(move.from);
+            selectedPiece = convertToBadCoordinateForPiece(data.from);
             ctx.lineWidth = SELECT_LINE_WIDTH;
-            if ((move.from.row + move.from.col) % 2 === 1) {
-                ctx.strokeStyle = '#b58863';
+            if ((json.black[4].col + json.black[4].row )% 2 === 1) {
+                ctx.strokeStyle = '#b58863';  // dark color
             } else {
-                ctx.strokeStyle = '#f0d9b5';
+                ctx.strokeStyle = '#f0d9b5';  // white color
             }
             ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
-            processMoveForEnemy(convertToBadCoordinate(move.to));
+            processMoveForEnemy(convertToBadCoordinate(data.to));
 
         } else {
             if (data.action === 'check') {
@@ -694,8 +731,8 @@ function WaitingEnemyMove() {
                     (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
-                selectedPiece = convertToBadCoordinateForPiece(move.from);
-                processMoveForEnemy(convertToBadCoordinate(move.to));
+                selectedPiece = convertToBadCoordinateForPiece(data.from);
+                processMoveForEnemy(convertToBadCoordinate(data.to));
             } else {
                 if (data.action === 'checkmate') {
                     ctx.lineWidth = SELECT_LINE_WIDTH;
