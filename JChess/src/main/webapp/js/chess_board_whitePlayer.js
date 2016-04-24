@@ -142,7 +142,10 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
 function setPiece() {
     canvas.removeEventListener('click', board_click);
-
+    var modal1 = document.getElementById('choosePiece');
+    jQuery(document).ready(function ($) {
+    $('#choosePiece').modal('show');
+    });
     var pictureQueen = document.getElementById('pictureQueen');
     var pictureBishop = document.getElementById('pictureBishop');
     var pictureRouke = document.getElementById('pictureRouke');
@@ -154,6 +157,7 @@ function setPiece() {
     while(answer != 'move' && answer != 'check' && answer != 'checkmate'){
 
     }
+    canvas.addEventListener('click', board_click);
     pictureBishop.removeEventListener(bishop_click());
     pictureCastle.removeEventListener(castle_click());
     pictureQueen.removeEventListener(queen_click());
@@ -161,7 +165,7 @@ function setPiece() {
 }
 
 function bishop_click() {
-    var jsonToServer = {
+   var jsonToServer = {
         action: 'setBishop'
     }
     sendToServer(jsonToServer);
@@ -746,6 +750,7 @@ function longCastlingForEnemy(clickedBlock, enemyPiece) {
 function endGame(bool) {
     canvas.removeEventListener('click', board_click);
     var modal = document.getElementById('myModal');
+
     var text = document.getElementById('endText');
     if (bool) {
         text.innerHTML = 'Good Job. You win!';
@@ -758,6 +763,7 @@ function endGame(bool) {
             $('#myModal').modal('show');
         });
     }
+
 }
 
 function WaitingEnemyMove() {
@@ -851,6 +857,10 @@ function draw() {
     canvas = document.getElementById('chess');
     var ImageABC = document.getElementById('abc');
     var Image123 = document.getElementById('1234');
+    var Table = document.getElementById('tableAlign');
+    var player1 = document.getElementById('one');
+    var player2 = document.getElementById('two');
+
 
     // Canvas supported?
     if (canvas.getContext) {
@@ -867,6 +877,15 @@ function draw() {
 
             Image123.width = Image123.width * (canvas.height / Image123.height);
             Image123.height = canvas.height;
+            alpha = (canvas.height / 2)  - 165;
+            Table.style.marginTop = alpha.toString() + "px";
+            player1.style.margin = "10px";
+            player1.style.color = "#26a69a";
+            player1.style.fontSize = "18px";
+            player2.style.margin = "10px";
+            player2.style.color = "#26a69a";
+            player2.style.fontSize = "18px";
+
         }
 
         // Calculate the precise block size

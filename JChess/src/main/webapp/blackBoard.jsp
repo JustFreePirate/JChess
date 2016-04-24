@@ -26,7 +26,11 @@
     <div class="pull-left" width="30">
         <img id="1234" src="img/321.png" width="30" height="800" class="num">
     </div>
-    <div class="col-md-3">
+    <div id ="tableAlign" class="col-md-3">
+        <div>
+            <div id="one" ><span>Player1</span></div>
+        </div>
+        <div>
         <table id="table" class="table table-striped">
             <thead>
             <tr>
@@ -37,6 +41,9 @@
             <tbody>
             </tbody>
         </table>
+        </div>
+        <div id="two"><span>Player1</span></div>
+
         <!-- Modal -->
         <div class="modal fade" id="myModal" role="dialog">
             <div class="modal-dialog">
@@ -57,9 +64,36 @@
                     </div>
                 </div>
             </div>
-            <!-- Modal -->
         </div>
+        <!-- Modal -->
     </div>
+    <!-- Modal -->
+            <div class="modal  fade" id="choosePiece" data-backdrop="static" data-keyboard="false" >
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class=" title modal-title congrat-title">Choose piece</h4>
+                        </div>
+                        <div class=" modal-body col-md-12">
+                             <div id="pictureQueen" class="col-md-3">
+                             <img src="img/queen1.png">
+                             </div>
+                             <div id="pictureBishop" class="col-md-3">
+                             <img src="img/bishop1.png">
+                             </div>
+                             <div id="pictureRouke"class="col-md-3">
+                             <img src="img/rouke1.png">
+                             </div>
+                             <div id="pictureCastle" class="col-md-3">
+                             <img src="img/castle1.png">
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    <!-- Modal -->
+
 </div>
 
 </body>
