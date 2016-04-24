@@ -52,8 +52,17 @@ public class Game {
 
     private Move parseDecision(Move move){
         int temp = move.getFrom().getColumn().ordinal() - move.getTo().getColumn().ordinal();
-        if ((move.getFrom() == Cell.E1 || move.getFrom() == Cell.E8)&& Math.abs(temp) == 2){
+
+        if (move.getFrom() == Cell.E1&& Math.abs(temp) == 2){
             if (temp < 0) {
+                return Move.castlingShort(move.getPerson(), move.getFrom(), move.getTo());
+            } else {
+                return Move.castlingLong(move.getPerson(), move.getFrom(), move.getTo());
+            }
+        }
+
+        if (move.getFrom() == Cell.E8 && Math.abs(temp) == 2){
+            if (temp > 0) {
                 return Move.castlingShort(move.getPerson(), move.getFrom(), move.getTo());
             } else {
                 return Move.castlingLong(move.getPerson(), move.getFrom(), move.getTo());
