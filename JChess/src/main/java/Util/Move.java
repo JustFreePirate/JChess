@@ -25,11 +25,11 @@ public class Move {
     static Move giveUp (Person person){
         return new Move(person, Decision.GIVE_UP, null, null, null);
     }
-    static Move castlingLong (Person person) {
-        return new Move (person, Decision.CASTLING_LONG, null, null, null);
+    static Move castlingLong (Person person, Cell from, Cell to) {
+        return new Move (person, Decision.CASTLING_LONG, from, to, null);
     }
-    static Move castlingShort (Person person) {
-        return new Move (person, Decision.CASTLING_SHORT, null, null, null);
+    static Move castlingShort (Person person, Cell from, Cell to) {
+        return new Move (person, Decision.CASTLING_SHORT, from, to, null);
     }
     static Move promotion (Person person, ChessPiece chessPiece) {
         return new Move (person, Decision.PROMOTION, null, null, chessPiece);

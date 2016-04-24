@@ -54,9 +54,9 @@ public class Game {
         int temp = move.getFrom().getColumn().ordinal() - move.getTo().getColumn().ordinal();
         if ((move.getFrom() == Cell.E1 || move.getFrom() == Cell.E8)&& Math.abs(temp) == 2){
             if (temp < 0) {
-                return Move.castlingShort(move.getPerson());
+                return Move.castlingShort(move.getPerson(), move.getFrom(), move.getTo());
             } else {
-                return Move.castlingLong(move.getPerson());
+                return Move.castlingLong(move.getPerson(), move.getFrom(), move.getTo());
             }
         }
 
@@ -151,16 +151,19 @@ public class Game {
             case CASTLING_LONG: case CASTLING_SHORT:
                 checkCastling(move);
                 doCastling(move);
+                history.add(Move.goFromTo(move.getPerson(),move.getFrom(),move.getTo()));
                 break;
 
             case PROMOTION:
                 if (checkPawnOnTheEdge(this.board)) pawnPromotion(move);
                 else throw new RuntimeException("nothing to promotion");
+                //TODO
                 break;
 
             case EN_PASSANT:
                 if (checkEnPassant(this.board, move)) doEnPassant(move);
                 else throw new RuntimeException("EN_PASSANT is incorrect");
+                history.add(Move.goFromTo(move.getPerson(),move.getFrom(),move.getTo()));
                 break;
 
             default:
