@@ -52,17 +52,8 @@ public class Game {
 
     private Move parseDecision(Move move){
         int temp = move.getFrom().getColumn().ordinal() - move.getTo().getColumn().ordinal();
-
-        if (move.getFrom() == Cell.E1&& Math.abs(temp) == 2){
+        if ((move.getFrom() == Cell.E1 || move.getFrom() == Cell.E8)&& Math.abs(temp) == 2){
             if (temp < 0) {
-                return Move.castlingShort(move.getPerson(), move.getFrom(), move.getTo());
-            } else {
-                return Move.castlingLong(move.getPerson(), move.getFrom(), move.getTo());
-            }
-        }
-
-        if (move.getFrom() == Cell.E8 && Math.abs(temp) == 2){
-            if (temp > 0) {
                 return Move.castlingShort(move.getPerson(), move.getFrom(), move.getTo());
             } else {
                 return Move.castlingLong(move.getPerson(), move.getFrom(), move.getTo());
@@ -166,7 +157,6 @@ public class Game {
             case PROMOTION:
                 if (checkPawnOnTheEdge(this.board)) pawnPromotion(move);
                 else throw new RuntimeException("nothing to promotion");
-                //TODO
                 break;
 
             case EN_PASSANT:
@@ -518,8 +508,7 @@ public class Game {
         if (checkCheck(board) == personColor)
             throw new RuntimeException("Your king under attack");
 
-
-        if (personColor == Color.WHITE){
+       if (personColor == Color.WHITE){
             if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.E1))
                 throw new RuntimeException("King has already done step");
             switch (move.getDecision()){
@@ -548,10 +537,11 @@ public class Game {
                 default: throw new RuntimeException("Unknown castling");
             }
         } else {
-            if (! history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.E8))
+            if (history.stream().map(Move::getFrom).anyMatch(from -> from == Cell.E8))
                 throw new RuntimeException("King has already done step");
             switch (move.getDecision()){
                 case CASTLING_SHORT:
+
                     if (getCellColor(board, Cell.F8) != Color.None ||
                             getCellColor(board, Cell.G8) != Color.None)
                         throw new RuntimeException("King has already done step");
