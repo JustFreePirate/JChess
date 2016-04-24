@@ -687,7 +687,7 @@ function longCastlingForEnemy(clickedBlock, enemyPiece) {
         status: IN_PLAY,
         position: 0
     }
-    movePiece(clickedBlock, enemyPiece);
+    movePieceForEnemy(clickedBlock, enemyPiece);
 }
 
 function endGame(bool) {
