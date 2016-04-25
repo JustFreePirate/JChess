@@ -858,6 +858,9 @@ function draw() {
     canvas = document.getElementById('chess');
     var ImageABC = document.getElementById('abc');
     var Image123 = document.getElementById('1234');
+    var Table = document.getElementById('tableAlign');
+    var player1 = document.getElementById('one');
+    var player2 = document.getElementById('two');
 
     // Canvas supported?
     if (canvas.getContext) {
@@ -874,6 +877,14 @@ function draw() {
 
             Image123.width = Image123.width * (canvas.height / Image123.height);
             Image123.height = canvas.height;
+            alpha = (canvas.height / 2)  - 165;
+            Table.style.marginTop = alpha.toString() + "px";
+            player1.style.margin = "10px";
+            player1.style.color = "#26a69a";
+            player1.style.fontSize = "18px";
+            player2.style.margin = "10px";
+            player2.style.color = "#26a69a";
+            player2.style.fontSize = "18px";
 
         }
 
