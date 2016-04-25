@@ -764,6 +764,10 @@ function WaitingEnemyMove() {
     canvas.removeEventListener('click', board_click);
     $.post('game', {action: 'getEnemyMove'}, function (data) {
         canvas.addEventListener('click', board_click, false);
+        if(data.action = 'enemySetPiece'){ //TODO: replace name action
+            data.action = 'move';
+            convertToBadCoordinateForPiece(data.from).piece = data.piece;
+        }
         if (data.action === 'move') {
             selectedPiece = convertToBadCoordinateForPiece(data.from);
             ctx.lineWidth = SELECT_LINE_WIDTH;

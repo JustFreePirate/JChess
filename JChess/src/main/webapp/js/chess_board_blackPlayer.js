@@ -137,13 +137,67 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: convertToStdCoordinate(clickedBlock)
     }
     sendToServer(jsonToServer);
+    if (answer = 'setPiece') {
+        setPiece();
+    }
     if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
         return (true);
     } else {
         return false;
     }
+}
 
+function setPiece() {
+    canvas.removeEventListener('click', board_click);
 
+    var pictureQueen = document.getElementById('pictureQueen');
+    var pictureBishop = document.getElementById('pictureBishop');
+    var pictureRouke = document.getElementById('pictureRouke');
+    var pictureCastle = document.getElementById('pictureCastle');
+    pictureBishop.addEventListener('click', bishop_click);
+    pictureRouke.addEventListener('click', rouke_click);
+    pictureCastle.addEventListener('click', castle_click);
+    pictureQueen.addEventListener('click', queen_click);
+    while(answer != 'move' && answer != 'check' && answer != 'checkmate'){
+
+    }
+    pictureBishop.removeEventListener(bishop_click());
+    pictureCastle.removeEventListener(castle_click());
+    pictureQueen.removeEventListener(queen_click());
+    pictureRouke.removeEventListener(rouke_click());
+}
+
+function bishop_click() {
+    var jsonToServer = {
+        action: 'setBishop'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_BISHOP;
+
+}
+
+function queen_click() {
+    var jsonToServer = {
+        action: 'setQueen'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_QUEEN;
+}
+
+function castle_click() {
+    var jsonToServer = {
+        action: 'setCastle'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_CASTLE;
+}
+
+function rouke_click() {
+    var jsonToServer = {
+        action: 'setRouke'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_ROUKE;
 }
 
 function getPieceAtBlock(clickedBlock, team) {
@@ -470,7 +524,7 @@ function movePiece(clickedBlock, enemyPiece) {
     // Clear the block in the original position
     drawBlock(selectedPiece.col, selectedPiece.row);
 
-    var team = json.black;
+    var team = json.black,
     opposite = json.white;
 
     team[selectedPiece.position].col = clickedBlock.col;
