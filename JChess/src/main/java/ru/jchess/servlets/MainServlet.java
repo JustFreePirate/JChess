@@ -106,6 +106,7 @@ public class MainServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //проверим залогинен ли.
+        getServletContext().log("Im in main servlet and logged perfectly");
         if (LoginServlet.isSignedIn(request)) {
                 GameContainer currentGameContainer = getCurrentGameContainer(request.getSession());
                 if (currentGameContainer == null) {

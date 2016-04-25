@@ -31,15 +31,26 @@ var PIECE_PAWN = 0,
     currentTurn = WHITE_TEAM,
     selectedPiece = null;
 
+function convertToBadCoordinateForPiece(coordinate) {
+    if (coordinate[0] === 'H') return getPieceAtBlock({row: 8 - coordinate[1], col: 7}, json.black);
+    if (coordinate[0] === 'G') return getPieceAtBlock({row: 8 - coordinate[1], col: 6}, json.black);
+    if (coordinate[0] === 'F') return getPieceAtBlock({row: 8 - coordinate[1], col: 5}, json.black);
+    if (coordinate[0] === 'E') return getPieceAtBlock({row: 8 - coordinate[1], col: 4}, json.black);
+    if (coordinate[0] === 'D') return getPieceAtBlock({row: 8 - coordinate[1], col: 3}, json.black);
+    if (coordinate[0] === 'C') return getPieceAtBlock({row: 8 - coordinate[1], col: 2}, json.black);
+    if (coordinate[0] === 'B') return getPieceAtBlock({row: 8 - coordinate[1], col: 1}, json.black);
+    if (coordinate[0] === 'A') return getPieceAtBlock({row: 8 - coordinate[1], col: 0}, json.black);
+}
+
 function convertToBadCoordinate(coordinate) {
-    if (coordinate[0] === 'H') return getPieceAtBlock({row: 8 - coordinate[1], col: 7}, json.white);
-    if (coordinate[0] === 'G') return getPieceAtBlock({row: 8 - coordinate[1], col: 6}, json.white);
-    if (coordinate[0] === 'F') return getPieceAtBlock({row: 8 - coordinate[1], col: 5}, json.white);
-    if (coordinate[0] === 'E') return getPieceAtBlock({row: 8 - coordinate[1], col: 4}, json.white);
-    if (coordinate[0] === 'D') return getPieceAtBlock({row: 8 - coordinate[1], col: 3}, json.white);
-    if (coordinate[0] === 'C') return getPieceAtBlock({row: 8 - coordinate[1], col: 2}, json.white);
-    if (coordinate[0] === 'B') return getPieceAtBlock({row: 8 - coordinate[1], col: 1}, json.white);
-    if (coordinate[0] === 'A') return getPieceAtBlock({row: 8 - coordinate[1], col: 0}, json.white);
+    if (coordinate[0] === 'H') return {row: 8 - coordinate[1], col: 7};
+    if (coordinate[0] === 'G') return {row: 8 - coordinate[1], col: 6};
+    if (coordinate[0] === 'F') return {row: 8 - coordinate[1], col: 5};
+    if (coordinate[0] === 'E') return {row: 8 - coordinate[1], col: 4};
+    if (coordinate[0] === 'D') return {row: 8 - coordinate[1], col: 3};
+    if (coordinate[0] === 'C') return {row: 8 - coordinate[1], col: 2};
+    if (coordinate[0] === 'B') return {row: 8 - coordinate[1], col: 1};
+    if (coordinate[0] === 'A') return {row: 8 - coordinate[1], col: 0};
 }
 
 
@@ -55,9 +66,16 @@ function convertToStdCoordinate(coordinate) {
 }
 
 function sendToServer(json) {
-    $.post('game', $.param(json), function (data) {
-        answer = data;
-    })
+
+    $.ajax({
+        type: 'POST',
+        url: 'game',
+        data: $.param(json),
+        success: function (data) {
+            answer = data;
+        },
+        async: false
+    });
 }
 
 function screenToBlock(x, y) {
@@ -110,13 +128,73 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: convertToStdCoordinate(clickedBlock) // G2
     }
     sendToServer(jsonToServer);
-    if (answer === 'correct' || answer === 'check' || answer === 'checkmate') {
-        return (true);
+    if (answer = 'setPiece') {
+        setPiece();
+    }
+    if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
+        return true;
     } else {
         return false;
     }
 
 
+}
+
+function setPiece() {
+    canvas.removeEventListener('click', board_click);
+    var modal1 = document.getElementById('choosePiece');
+    jQuery(document).ready(function ($) {
+    $('#choosePiece').modal('show');
+    });
+    var pictureQueen = document.getElementById('pictureQueen');
+    var pictureBishop = document.getElementById('pictureBishop');
+    var pictureRouke = document.getElementById('pictureRouke');
+    var pictureCastle = document.getElementById('pictureCastle');
+    pictureBishop.addEventListener('click', bishop_click);
+    pictureRouke.addEventListener('click', rouke_click);
+    pictureCastle.addEventListener('click', castle_click);
+    pictureQueen.addEventListener('click', queen_click);
+    while(answer != 'move' && answer != 'check' && answer != 'checkmate'){
+
+    }
+    canvas.addEventListener('click', board_click);
+    pictureBishop.removeEventListener(bishop_click());
+    pictureCastle.removeEventListener(castle_click());
+    pictureQueen.removeEventListener(queen_click());
+    pictureRouke.removeEventListener(rouke_click());
+}
+
+function bishop_click() {
+   var jsonToServer = {
+        action: 'setBishop'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_BISHOP;
+
+}
+
+function queen_click() {
+    var jsonToServer = {
+        action: 'setQueen'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_QUEEN;
+}
+
+function castle_click() {
+    var jsonToServer = {
+        action: 'setCastle'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_CASTLE;
+}
+
+function rouke_click() {
+    var jsonToServer = {
+        action: 'setRouke'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_ROUKE;
 }
 
 function getPieceAtBlock(clickedBlock, team) {
@@ -493,8 +571,6 @@ function movePieceForEnemy(clickedBlock, enemyPiece) {
 }
 
 
-
-
 function processMove(clickedBlock) {
     var pieceAtBlock = getPieceAtBlock(clickedBlock, json.white),
         enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
@@ -503,9 +579,9 @@ function processMove(clickedBlock) {
         removeSelection(selectedPiece);
         checkIfPieceClicked(clickedBlock, json.white);
     } else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
-       
+
         if ((selectedPiece.piece === PIECE_PAWN) && Math.abs(selectedPiece.col - clickedBlock.col) === 1
-            && Math.abs(selectedPiece.row - clickedBlock.row) === 1 && enemyPiece === null) {
+            && Math.abs(selectedPiece.row - clickedBlock.row) === 1 && enemyPiece === null) {     // Взятие на проходе
             addToTable(convertToStdCoordinate(selectedPiece),
                 convertToStdCoordinate(clickedBlock), 'white');
             movePiece(clickedBlock, enemyPiece);
@@ -515,7 +591,7 @@ function processMove(clickedBlock) {
             json.black[enemyPiece.position].status = TAKEN;
         }
         if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2) {
-            if (selectedPiece.col - clickedBlock.col === 2) {
+            if (selectedPiece.col - clickedBlock.col === 2) {                   // Рокировка
                 addToTable('0-0-0', '', 'white');
                 longCastling(clickedBlock, enemyPiece);
             } else {
@@ -524,26 +600,64 @@ function processMove(clickedBlock) {
             }
         } else {
             addToTable(convertToStdCoordinate(selectedPiece),
-                convertToStdCoordinate(clickedBlock), 'white');
+                convertToStdCoordinate(clickedBlock), 'white');                 // Просто ход
             movePiece(clickedBlock, enemyPiece);
 
         }
         if (answer === 'checkmate') {
-            ctx.lineWidth = SELECT_LINE_WIDTH;
+            ctx.lineWidth = SELECT_LINE_WIDTH;                                          // Рисуем врагу красную обводку
             ctx.strokeStyle = '#ff0000';
             ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+
+            // Удаляем свою обводку
+            ctx.lineWidth = SELECT_LINE_WIDTH;
+            if ((json.white[4].col + json.white[4].row ) % 2 === 1) {
+                ctx.strokeStyle = '#b58863';  // dark color
+            } else {
+                ctx.strokeStyle = '#f0d9b5';  // white color
+            }
+            ctx.strokeRect((json.white[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
+                BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
             endGame(true);
         } else {
-            if (answer === 'check') {
+            if (answer === 'check') {                                    //Рисуем врагу красную обводку
                 ctx.lineWidth = SELECT_LINE_WIDTH;
                 ctx.strokeStyle = '#ff0000';
                 ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+
+                // Удаляем свою обводку
+                ctx.lineWidth = SELECT_LINE_WIDTH;
+                if ((json.white[4].col + json.white[4].row ) % 2 === 1) {
+                    ctx.strokeStyle = '#b58863';  // dark color
+                } else {
+                    ctx.strokeStyle = '#f0d9b5';  // white color
+                }
+                ctx.strokeRect((json.white[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                    (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                    BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
+                    BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+            } else {
+                if (answer === 'move') {
+                    // удаляем свою обводку
+                    ctx.lineWidth = SELECT_LINE_WIDTH;
+                    if ((json.white[4].col + json.white[4].row ) % 2 === 1) {
+                        ctx.strokeStyle = '#b58863';  // dark color
+                    } else {
+                        ctx.strokeStyle = '#f0d9b5';  // white color
+                    }
+                    ctx.strokeRect((json.white[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                        (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                        BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
+                        BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+                }
             }
             answer = '';
             currentTurn = BLACK_TEAM;
@@ -630,42 +744,49 @@ function longCastlingForEnemy(clickedBlock, enemyPiece) {
         status: IN_PLAY,
         position: 0
     }
-    movePiece(clickedBlock, enemyPiece);
+    movePieceForEnemy(clickedBlock, enemyPiece);
 }
 
 function endGame(bool) {
     canvas.removeEventListener('click', board_click);
     var modal = document.getElementById('myModal');
+
     var text = document.getElementById('endText');
     if (bool) {
         text.innerHTML = 'Good Job. You win!';
-        jQuery(document).ready(function($){
-        $('#myModal').modal('show');});
+        jQuery(document).ready(function ($) {
+            $('#myModal').modal('show');
+        });
     } else {
         text.innerHTML = 'Sorry, you lose :(';
-        jQuery(document).ready(function($){
-        $('#myModal').modal('show');});
+        jQuery(document).ready(function ($) {
+            $('#myModal').modal('show');
+        });
     }
+
 }
 
 function WaitingEnemyMove() {
     canvas.removeEventListener('click', board_click);
     $.post('game', {action: 'getEnemyMove'}, function (data) {
         canvas.addEventListener('click', board_click, false);
-        var move = JSON.parse(data);
+        if(data.action = 'enemySetPiece'){ //TODO: replace name action
+            data.action = 'move';
+            convertToBadCoordinateForPiece(data.from).piece = data.piece;
+        }
         if (data.action === 'move') {
-            selectedPiece = convertToBadCoordinate(move.from);
+            selectedPiece = convertToBadCoordinateForPiece(data.from);
             ctx.lineWidth = SELECT_LINE_WIDTH;
-            if ((move.from.row + move.from.col) % 2 === 1) {
-                ctx.strokeStyle = '#b58863';
+            if ((json.black[4].col + json.black[4].row ) % 2 === 1) {
+                ctx.strokeStyle = '#b58863';  // dark color
             } else {
-                ctx.strokeStyle = '#f0d9b5';
+                ctx.strokeStyle = '#f0d9b5';  // white color
             }
             ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
-            processMoveForEnemy(convertToBadCoordinate(move.to));
+            processMoveForEnemy(convertToBadCoordinate(data.to));
 
         } else {
             if (data.action === 'check') {
@@ -675,8 +796,8 @@ function WaitingEnemyMove() {
                     (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
-                selectedPiece = convertToBadCoordinate(move.from);
-                processMoveForEnemy(convertToBadCoordinate(move.to));
+                selectedPiece = convertToBadCoordinateForPiece(data.from);
+                processMoveForEnemy(convertToBadCoordinate(data.to));
             } else {
                 if (data.action === 'checkmate') {
                     ctx.lineWidth = SELECT_LINE_WIDTH;
@@ -692,8 +813,6 @@ function WaitingEnemyMove() {
         }
     });
 
-
-   
 
 }
 
@@ -742,6 +861,10 @@ function draw() {
     canvas = document.getElementById('chess');
     var ImageABC = document.getElementById('abc');
     var Image123 = document.getElementById('1234');
+    var Table = document.getElementById('tableAlign');
+    var player1 = document.getElementById('one');
+    var player2 = document.getElementById('two');
+
 
     // Canvas supported?
     if (canvas.getContext) {
@@ -758,6 +881,15 @@ function draw() {
 
             Image123.width = Image123.width * (canvas.height / Image123.height);
             Image123.height = canvas.height;
+            alpha = (canvas.height / 2)  - 165;
+            Table.style.marginTop = alpha.toString() + "px";
+            player1.style.margin = "10px";
+            player1.style.color = "#26a69a";
+            player1.style.fontSize = "18px";
+            player2.style.margin = "10px";
+            player2.style.color = "#26a69a";
+            player2.style.fontSize = "18px";
+
         }
 
         // Calculate the precise block size

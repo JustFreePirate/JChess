@@ -43,28 +43,36 @@ $(document).ready(function () {
                 login: login.value,
                 password: password.value
             };
-            if (dataToServer.login != '' && dataToServer.password != '') {
-                $.post('login', $.param(dataToServer), function (data) {
-                    if (data === 'sign_up_success') {
-                        window.location.href = 'main';
-                    } else {
-                        if(data === 'sign_up_filter_failure')
-                            login.setCustomValidity("Invalid login");
-                        else{
-                            if(data === 'sign_up_user_already_exist'){
-                                login.setCustomValidity("Email already exist");
-                            } else {
-                                alert('Oooops. We have some trouble! =)');
+            if (isEmail(dataToServer.login)) {
+                if (dataToServer.login != '' && dataToServer.password != '') {
+                    $.post('login', $.param(dataToServer), function (data) {
+                        if (data === 'sign_up_success') {
+                            window.location.href = 'main';
+                        } else {
+                            if (data === 'sign_up_filter_failure')
+                                login.setCustomValidity("Invalid login");
+                            else {
+                                if (data === 'sign_up_user_already_exist') {
+                                    login.setCustomValidity("Email already exist");
+                                } else {
+                                    alert('Oooops. We have some trouble! =)');
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
+            }  else {
+                login.setCustomValidity("Incorrect email");
             }
         } else {
             repeatPassword.setCustomValidity("Passwords are not equal");
         }
         return false;
     });
+
+    function isEmail(email){
+        return (email.indexOf('@') != -1)
+    }
 
     $('.toggle').on('click', function () {
         $('.container').stop().addClass('active');
