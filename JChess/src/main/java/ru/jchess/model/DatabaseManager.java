@@ -14,7 +14,7 @@ public class DatabaseManager {
     static final String DB_URL = "jdbc:mysql://localhost:3306/jchess_db";
 
     static final String DB_USER = "root";
-    static final String DB_PASS = "admin";
+    static final String DB_PASS = "LZ873n22";
 
     static final String USER_TABLE = "users";
 
