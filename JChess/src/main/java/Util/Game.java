@@ -83,9 +83,16 @@ public class Game {
     public boolean isCheckmate() {
         return isGameOver && !isDraw();
     }
+    public boolean isStalemate() {
+        return isGameOver && isDraw();
+    }
 
     public boolean checkCheck () {
-        return checkCheck(this.board)!= Color.None;
+        return checkCheckWhite(this.board) && checkCheckBlack(this.board);
+    }
+
+    public boolean checkPawnOnTheEdge() {
+        return checkPawnOnTheEdge(this.board);
     }
 
     public Color getColor (){
@@ -122,7 +129,11 @@ public class Game {
                 if (!getAvailableMove(move.getFrom()).contains(move.getTo())){
                     throw new RuntimeException("Incorrect move");
                 }
-                if (checkCheck(step(board.clone(), move)).equals(colorFigure)){
+
+                if (checkCheckWhite(step(board.clone(), move)) && colorFigure == Color.WHITE){
+                    throw new RuntimeException("Your king is under attack!");
+                }
+                if (checkCheckBlack(step(board.clone(), move)) && colorFigure == Color.BLACK){
                     throw new RuntimeException("Your king is under attack!");
                 }
 
@@ -131,11 +142,11 @@ public class Game {
 
                 board = step(board.clone(), move);
 
-                if (checkStalemate(board).equals(enColor)){
+                if (checkStalemate(board)){
                     draw = true;
                     isGameOver = true;
                 }
-                if (checkCheckmate(board).equals(enColor)){
+                if (checkCheckmate(board)){
                     isGameOver = true;
                 }
 
@@ -431,9 +442,8 @@ public class Game {
                     if (isWHITE(board, cell.go(1,-1))) avaliableMove.add(cell.go(1,-1));
                     if (isWHITE(board, cell.go(-1,-1))) avaliableMove.add(cell.go(-1,-1));
                 } catch (NullPointerException e) {}
-
-
                 break;
+
             case WHITE:
                 try {
                     if (isNone(board, cell.go(0,1))){
@@ -446,8 +456,8 @@ public class Game {
                     if (isBLACK(board, cell.go(1,1))) avaliableMove.add(cell.go(1,1));
                     if (isBLACK(board, cell.go(-1,1))) avaliableMove.add(cell.go(-1,1));
                 } catch (NullPointerException e) {}
-
                 break;
+
             case None:
                 break;
         }
@@ -505,7 +515,9 @@ public class Game {
         Color personColor = getColorOfPerson(move.getPerson());
 
         //Если король под шахом -- не ок
-        if (checkCheck(board) == personColor)
+        if (checkCheckWhite(board) && personColor == Color.WHITE)
+            throw new RuntimeException("Your king under attack");
+        if (checkCheckBlack(board) && personColor == Color.BLACK)
             throw new RuntimeException("Your king under attack");
 
        if (personColor == Color.WHITE){
@@ -599,37 +611,40 @@ public class Game {
     }
 
     //Чекнуть мат
-    private Color checkCheckmate (ChessPiece[] board) {
-        Color color = checkCheck(board);
-        if (color.equals(Color.None)) return Color.None;    //Если не шах, то всё
-        Set<Move> aMoves = availableMoves(board, color);
-        return aMoves.stream().map(mov -> checkCheck(step(board.clone(), mov))).allMatch(col -> col == color) ? color : Color.None;
-    }
-
-    //Чекнуть шах
-    private Color checkCheck (ChessPiece[] board) {
-        Cell coordKingWhite = (Cell) findFigure(board, Color.WHITE).stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KW)).toArray()[0];
-        Cell coordKingBlack = (Cell) findFigure(board, Color.BLACK).stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KB)).toArray()[0];
-
-        if(checkCell(board, coordKingWhite) == Color.BLACK){
-            return Color.WHITE;
-        } else if(checkCell(board, coordKingBlack) == Color.WHITE){
-            return Color.BLACK;
-        } else {
-            return Color.None;
+    private boolean checkCheckmate (ChessPiece[] board) {
+        if (checkCheckWhite(board)) {
+            Set<Move> aMovesWhite = availableMoves(board, Color.WHITE);
+            return aMovesWhite.stream().map(mov -> checkCheckWhite(step(board.clone(), mov))).allMatch(m -> m);
         }
+        if (checkCheckBlack(board)){
+            Set<Move> aMovesBlack = availableMoves(board, Color.BLACK);
+            return aMovesBlack.stream().map(mov -> checkCheckBlack(step(board.clone(), mov))).allMatch(m -> m);
+        }
+        return false;
     }
 
     //Чекнуть пат
-    private Color checkStalemate (ChessPiece[] board) {
-        if (!checkCheck(board).equals(Color.None)) return Color.None;
+    private boolean checkStalemate (ChessPiece[] board) {
+        if(checkCheckWhite(board) || checkCheckBlack(board)) return false;
 
         Set<Move> aWhiteMoves= availableMoves(board, Color.WHITE);
         Set<Move> aBlackMoves= availableMoves(board, Color.BLACK);
 
-        Color cW = aWhiteMoves.stream().map(mov -> checkCheck(step(board.clone(), mov))).allMatch(col -> col == Color.WHITE) ? Color.WHITE : Color.None;
-        Color cB = aBlackMoves.stream().map(mov -> checkCheck(step(board.clone(), mov))).allMatch(col -> col == Color.BLACK) ? Color.BLACK : Color.None;
-        return cW.equals(Color.None) ? cW : cB;
+        boolean bW = aWhiteMoves.stream().map(mov -> checkCheckWhite(step(board.clone(), mov))).allMatch(x->x);
+        boolean bB = aBlackMoves.stream().map(mov -> checkCheckBlack(step(board.clone(), mov))).allMatch(x->x);
+        return bW || bB;
+    }
+
+    //Чекнуть шах
+    private boolean checkCheckWhite (ChessPiece[] board) {
+        Cell coordKingWhite = (Cell) findFigure(board, Color.WHITE).stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KW)).toArray()[0];
+
+        return checkCell(board, coordKingWhite) == Color.BLACK;
+    }
+    private boolean checkCheckBlack (ChessPiece[] board) {
+        Cell coordKingBlack = (Cell) findFigure(board, Color.BLACK).stream().filter((m) -> board[m.ordinal()].equals(ChessPiece.KB)).toArray()[0];
+
+        return checkCell(board, coordKingBlack) == Color.WHITE;
     }
 
     //Чекнуть, не нужно ли превращать пешку
