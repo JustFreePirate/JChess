@@ -24,7 +24,7 @@ public class GameContainer {
 
     public void chooseRandomColor() {
         Random random = new Random(new Date().getTime());
-        int col = random.nextInt(2);
+        int col = Math.round(random.nextFloat());
         switch (col) {
             case 0:
                 myColor = Color.BLACK; break;
