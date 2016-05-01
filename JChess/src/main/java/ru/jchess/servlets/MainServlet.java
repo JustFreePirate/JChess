@@ -132,5 +132,8 @@ public class MainServlet extends HttpServlet {
         return (GameContainer) session.getAttribute(CURRENT_GAME_CONTAINER);
     }
 
+    public static void setCurrentGameContainer(HttpSession session, GameContainer gc) {
+        session.setAttribute(CURRENT_GAME_CONTAINER, gc);
+    }
 
 }

@@ -28,17 +28,21 @@ public class GameServlet extends HttpServlet {
             if (gameContainer != null) { //Если игрок сейчас играет партию
                 Game game = gameContainer.getGame();
                 String action = request.getParameter("action");
-                if (WAIT_OPPONENT_MOVE.equals(action)) {
+                if (WAIT_OPPONENT_MOVE.equals(action)) { //Ждем чужого хода
                     Object myMonitor = gameContainer.getMyMonitor();
                     //ждем хода оппонента
                     synchronized (myMonitor) {
-                        while (myColor != game.getColor()) { //пока мой цвет не станет цветом того, кто должен ходить
+                        while (myColor != game.getColor() && !game.isGameOver()) { //пока мой цвет не станет цветом того, кто должен ходить
                             try {
                                 getServletContext().log("waiting"); //log
                                 myMonitor.wait();
                                 getServletContext().log("achieved move"); //log
                             } catch (InterruptedException e) {
+                                e.printStackTrace();
                             }
+                        }
+                        if (game.isGameOver()) {
+                            processionGameOver(request);
                         }
                         Move move = game.getLastMove();
                         String responseAction = getBoardState(game);
@@ -48,12 +52,17 @@ public class GameServlet extends HttpServlet {
                         writer.close();
                         getServletContext().log(new Gson().toJson(jsonPackMove)); //log
                     }
-                } else if (MOVE.equals(action)) {
-                    //Проверим наш ли сейчас ход
+                } else if (MOVE.equals(action) || PROMOTION.equals(action)) { //делаем свой ход
                     String from = request.getParameter("from");
                     String to = request.getParameter("to");
                     Person person = getMyColorPerson(gameContainer.getMyColor());
-                    Move move = Move.goFromTo(person, Cell.valueOf(from), Cell.valueOf(to));
+                    Move move;
+                    if (MOVE.equals(action)) {
+                        move = Move.goFromTo(person, Cell.valueOf(from), Cell.valueOf(to));
+                    } else {
+                        move = Move.promotion(person, ChessPiece.valueOf(request.getParameter("chessPiece")));
+                    }
+
                     //сформировали ход
                     String respString;
                     try {
@@ -64,6 +73,9 @@ public class GameServlet extends HttpServlet {
                         //ход был некорректен
                         getServletContext().log(e.getMessage()); //log
                         respString = MOVE_NOT_CORRECT;
+                    }
+                    if (game.isGameOver()) {
+                        processionGameOver(request);
                     }
                     writer.write(respString);
                     writer.close();
@@ -91,9 +103,12 @@ public class GameServlet extends HttpServlet {
             state = DRAW;
         } else if (game.checkCheck()) {
             state = CHECK;
+        } else if (game.checkPawnOnTheEdge()) {
+            state = PROMOTION;
         } else {
             state = MOVE;
         }
+
         return state;
     }
 
@@ -106,6 +121,11 @@ public class GameServlet extends HttpServlet {
             default:
                 throw new RuntimeException("No person for this color");
         }
+    }
+
+    private void processionGameOver(HttpServletRequest request) {
+        //TODO statistic
+        MainServlet.setCurrentGameContainer(request.getSession(), null);
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

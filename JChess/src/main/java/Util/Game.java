@@ -95,6 +95,8 @@ public class Game {
         return checkPawnOnTheEdge(this.board);
     }
 
+    public boolean isGameOver() { return isGameOver; }
+
     public Color getColor (){
         if (history.size() == 0){
             return Color.WHITE;

@@ -31,7 +31,7 @@ public class Move {
     static Move castlingShort (Person person, Cell from, Cell to) {
         return new Move (person, Decision.CASTLING_SHORT, from, to, null);
     }
-    static Move promotion (Person person, ChessPiece chessPiece) {
+    public static Move promotion (Person person, ChessPiece chessPiece) {
         return new Move (person, Decision.PROMOTION, null, null, chessPiece);
     }
     static Move enpassant (Person person, Cell from, Cell to) {
