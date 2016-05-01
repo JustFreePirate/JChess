@@ -137,13 +137,67 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: convertToStdCoordinate(clickedBlock)
     }
     sendToServer(jsonToServer);
+    if (answer = 'setPiece') {
+        setPiece();
+    }
     if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
         return (true);
     } else {
         return false;
     }
+}
 
+function setPiece() {
+    canvas.removeEventListener('click', board_click);
 
+    var pictureQueen = document.getElementById('pictureQueen');
+    var pictureBishop = document.getElementById('pictureBishop');
+    var pictureRouke = document.getElementById('pictureRouke');
+    var pictureCastle = document.getElementById('pictureCastle');
+    pictureBishop.addEventListener('click', bishop_click);
+    pictureRouke.addEventListener('click', rouke_click);
+    pictureCastle.addEventListener('click', castle_click);
+    pictureQueen.addEventListener('click', queen_click);
+    while(answer != 'move' && answer != 'check' && answer != 'checkmate'){
+
+    }
+    pictureBishop.removeEventListener(bishop_click());
+    pictureCastle.removeEventListener(castle_click());
+    pictureQueen.removeEventListener(queen_click());
+    pictureRouke.removeEventListener(rouke_click());
+}
+
+function bishop_click() {
+    var jsonToServer = {
+        action: 'setBishop'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_BISHOP;
+
+}
+
+function queen_click() {
+    var jsonToServer = {
+        action: 'setQueen'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_QUEEN;
+}
+
+function castle_click() {
+    var jsonToServer = {
+        action: 'setCastle'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_CASTLE;
+}
+
+function rouke_click() {
+    var jsonToServer = {
+        action: 'setRouke'
+    }
+    sendToServer(jsonToServer);
+    selectedPiece.piece = PIECE_ROUKE;
 }
 
 function getPieceAtBlock(clickedBlock, team) {
@@ -470,7 +524,7 @@ function movePiece(clickedBlock, enemyPiece) {
     // Clear the block in the original position
     drawBlock(selectedPiece.col, selectedPiece.row);
 
-    var team = json.black;
+    var team = json.black,
     opposite = json.white;
 
     team[selectedPiece.position].col = clickedBlock.col;
@@ -524,22 +578,60 @@ function processMove(clickedBlock) {
         removeSelection(selectedPiece);
         checkIfPieceClicked(clickedBlock, json.black);
     } else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
-        if (answer === 'checkmate') {
+        if (answer === 'checkmate') {                               //Рисуем красную обводку и конец игры
             ctx.lineWidth = SELECT_LINE_WIDTH;
             ctx.strokeStyle = '#ff0000';
-            ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
-                (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+            ctx.strokeRect((json.white[3].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                (json.white[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
+                BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+            
+            // Удаляем свою обводку
+            ctx.lineWidth = SELECT_LINE_WIDTH;
+            if ((json.black[3].col + json.black[3].row )% 2 === 1) {
+                ctx.strokeStyle = '#b58863';  // dark color
+            } else {
+                ctx.strokeStyle = '#f0d9b5';  // white color
+            }
+            ctx.strokeRect((json.black[3].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                (json.black[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
             endGame(true);
         } else {
-            if (answer === 'check') {
+            if (answer === 'check') {                               // Рисуем красную обводку
                 ctx.lineWidth = SELECT_LINE_WIDTH;
                 ctx.strokeStyle = '#ff0000';
-                ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
-                    (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                ctx.strokeRect((json.white[3].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                    (json.white[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+                ctx.lineWidth = SELECT_LINE_WIDTH;
+                
+                // Удаляем свою обводку
+                if ((json.black[3].col + json.black[3].row )% 2 === 1) {
+                    ctx.strokeStyle = '#b58863';  // dark color
+                } else {
+                    ctx.strokeStyle = '#f0d9b5';  // white color
+                }
+                ctx.strokeRect((json.black[3].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                    (json.black[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                    BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
+                    BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+            } else {
+                if(answer === 'move'){
+                    // Удаляем свою обводку 
+                    ctx.lineWidth = SELECT_LINE_WIDTH;
+                    if ((json.black[3].col + json.black[3].row )% 2 === 1) {
+                        ctx.strokeStyle = '#b58863';  // dark color
+                    } else {
+                        ctx.strokeStyle = '#f0d9b5';  // white color
+                    }
+                    ctx.strokeRect((json.black[3].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                        (json.black[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                        BLOCK_SIZE - (SELECT_LINE_WIDTH * 2 ),
+                        BLOCK_SIZE - (SELECT_LINE_WIDTH * 2 ));
+                }
             }
             answer = '';
             if ((selectedPiece.piece === PIECE_PAWN) && Math.abs(selectedPiece.col - clickedBlock.col) === 1
@@ -655,7 +747,7 @@ function longCastlingForEnemy(clickedBlock, enemyPiece) {
         status: IN_PLAY,
         position: 7
     }
-    movePiece(clickedBlock, enemyPiece);
+    movePieceForEnemy(clickedBlock, enemyPiece);
 }
 
 function endGame(bool) {
@@ -679,20 +771,19 @@ function WaitingEnemyMove() {
     canvas.removeEventListener('click', board_click);
     $.post('game', {action: 'getEnemyMove'}, function (data) {
         canvas.addEventListener('click', board_click, false);
-        var move = data;
         if (data.action === 'move') {
-            selectedPiece = convertToBadCoordinateForPiece(move.from);
+            selectedPiece = convertToBadCoordinateForPiece(data.from);
             ctx.lineWidth = SELECT_LINE_WIDTH;
-            if ((move.from.row + move.from.col) % 2 === 1) {
-                ctx.strokeStyle = '#b58863';
+            if ((json.white[3].col + json.white[3].row) % 2 === 1) {
+                ctx.strokeStyle = '#b58863';  // dark color
             } else {
-                ctx.strokeStyle = '#f0d9b5';
+                ctx.strokeStyle = '#f0d9b5'; // white color
             }
             ctx.strokeRect((json.white[3].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 (json.white[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
-            processMoveForEnemy(convertToBadCoordinate(move.to));
+            processMoveForEnemy(convertToBadCoordinate(data.to));
 
         } else {
             if (data.action === 'check') {
@@ -702,8 +793,8 @@ function WaitingEnemyMove() {
                     (json.black[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
-                selectedPiece = convertToBadCoordinateForPiece(move.from);
-                processMoveForEnemy(convertToBadCoordinate(move.to));
+                selectedPiece = convertToBadCoordinateForPiece(data.from);
+                processMoveForEnemy(convertToBadCoordinate(data.to));
             } else {
                 if (data.action === 'checkmate') {
                     ctx.lineWidth = SELECT_LINE_WIDTH;
@@ -712,8 +803,8 @@ function WaitingEnemyMove() {
                         (json.black[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                         BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                         BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
-                    selectedPiece = convertToBadCoordinateForPiece(move.from);
-                    processMoveForEnemy(convertToBadCoordinate(move.to));
+                    selectedPiece = convertToBadCoordinateForPiece(data.from);
+                    processMoveForEnemy(convertToBadCoordinate(data.to));
                     endGame(false);
 
                 }
@@ -767,6 +858,9 @@ function draw() {
     canvas = document.getElementById('chess');
     var ImageABC = document.getElementById('abc');
     var Image123 = document.getElementById('1234');
+    var Table = document.getElementById('tableAlign');
+    var player1 = document.getElementById('one');
+    var player2 = document.getElementById('two');
 
     // Canvas supported?
     if (canvas.getContext) {
@@ -783,6 +877,14 @@ function draw() {
 
             Image123.width = Image123.width * (canvas.height / Image123.height);
             Image123.height = canvas.height;
+            alpha = (canvas.height / 2)  - 165;
+            Table.style.marginTop = alpha.toString() + "px";
+            player1.style.margin = "10px";
+            player1.style.color = "#26a69a";
+            player1.style.fontSize = "18px";
+            player2.style.margin = "10px";
+            player2.style.color = "#26a69a";
+            player2.style.fontSize = "18px";
 
         }
 
