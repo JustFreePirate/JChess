@@ -137,7 +137,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: convertToStdCoordinate(clickedBlock)
     }
     sendToServer(jsonToServer);
-    if (answer = 'setPiece') {
+    if (answer === 'setPiece') {
         setPiece();
     }
     if (answer === 'move' || answer === 'check' || answer === 'checkmate') {

@@ -128,7 +128,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: convertToStdCoordinate(clickedBlock) // G2
     }
     sendToServer(jsonToServer);
-    if (answer = 'setPiece') {
+    if (answer === 'promotion') {
         setPiece();
     }
     if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
@@ -770,7 +770,7 @@ function WaitingEnemyMove() {
     canvas.removeEventListener('click', board_click);
     $.post('game', {action: 'getEnemyMove'}, function (data) {
         canvas.addEventListener('click', board_click, false);
-        if(data.action = 'enemySetPiece'){ //TODO: replace name action
+        if(data.action === 'enemySetPiece'){ //TODO: replace name action
             data.action = 'move';
             convertToBadCoordinateForPiece(data.from).piece = data.piece;
         }
