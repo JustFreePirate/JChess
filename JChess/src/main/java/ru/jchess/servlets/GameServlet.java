@@ -99,9 +99,14 @@ public class GameServlet extends HttpServlet {
         String state;
         if (game.isCheckmate()) {
             state = CHECKMATE;
+
+// TODO: isDraw ~> isStalemate?
         } else if (game.isDraw()) {
             state = DRAW;
-        } else if (game.checkCheck()) {
+//        } else if (game.isStalemate()) {
+//            state = DRAW;
+
+        } else if (game.isCheck()) {
             state = CHECK;
         } else if (game.checkPawnOnTheEdge()) {
             state = PROMOTION;

@@ -80,16 +80,6 @@ public class Game {
         return move;
     }
 
-    public boolean isCheckmate() {
-        return isGameOver && !isDraw();
-    }
-    public boolean isStalemate() {
-        return isGameOver && isDraw();
-    }
-
-    public boolean checkCheck () {
-        return checkCheckWhite(this.board) && checkCheckBlack(this.board);
-    }
 
     public boolean checkPawnOnTheEdge() {
         return checkPawnOnTheEdge(this.board);
@@ -170,6 +160,8 @@ public class Game {
             case PROMOTION:
                 if (checkPawnOnTheEdge(this.board)) pawnPromotion(move);
                 else throw new RuntimeException("nothing to promotion");
+                Move moveTemp = history.pop();
+                history.add(Move.promotion(moveTemp.getPerson(),moveTemp.getFrom(),moveTemp.getTo(),move.getChessPiece()));
                 break;
 
             case EN_PASSANT:
@@ -185,19 +177,30 @@ public class Game {
     }
 
 
-    //Получим ход противника
-    public Move getLastMove () {
-        return history.getLast();
+    @Deprecated
+    public boolean isDraw() {
+        return draw;
     }
 
 
-    //Если игра закончена -- вернет победителя
+//===== public методы =========================================================================
+
+    public boolean isCheckmate() {
+    return isGameOver && !isDraw();
+}
+    public boolean isStalemate() {
+        return isGameOver && isDraw();
+    }
+    public boolean isCheck() {
+        return checkCheckWhite(this.board) || checkCheckBlack(this.board);
+    }
     public Person getWinner (){
         return winner;
     }
 
-    public boolean isDraw() {
-        return draw;
+    //Получим ход противника
+    public Move getLastMove () {
+        return history.getLast();
     }
 
 //===== "Активные" методы =====================================================================
