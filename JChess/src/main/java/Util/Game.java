@@ -88,7 +88,7 @@ public class Game {
     }
 
     public boolean checkCheck () {
-        return checkCheckWhite(this.board) && checkCheckBlack(this.board);
+        return checkCheckWhite(this.board) || checkCheckBlack(this.board);
     }
 
     public boolean checkPawnOnTheEdge() {

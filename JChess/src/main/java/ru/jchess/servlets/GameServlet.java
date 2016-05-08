@@ -81,7 +81,9 @@ public class GameServlet extends HttpServlet {
                     writer.close();
                     //сообщим оппоненту, что походили
                     synchronized (gameContainer.getOpponentMonitor()) {
-                        gameContainer.getOpponentMonitor().notify();
+                        if (respString != PROMOTION) { //не ожидаем ещё подтверждения фигуры
+                            gameContainer.getOpponentMonitor().notify();
+                        }
                     }
                 } else {
                     getServletContext().log("unexpected action" + action); //log
