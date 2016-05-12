@@ -109,6 +109,16 @@ public class LoginServlet extends HttpServlet {
         }
     }
 
+    public static String getLogin(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute(USER_PROFILE);
+        if (user != null) {
+            return user.getLogin();
+        } else {
+            return null;
+        }
+    }
+
     private DatabaseManager getDatabaseManager() {
         ServletContext sc = this.getServletContext();
         DatabaseManager dbm = (DatabaseManager) sc.getAttribute(DB_MANAGER);

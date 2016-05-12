@@ -12,6 +12,8 @@ import java.util.Random;
 public class GameContainer {
     private volatile Object myMonitor; //монитор того, кто создал игру
     private volatile Object opponentMonitor; //монитор того, кто подключился
+    private volatile String myLogin;
+    private volatile String opponentLogin;
     private volatile Game game;
     private volatile Color myColor;
     public GameContainer(Object monitor) {
@@ -35,11 +37,29 @@ public class GameContainer {
         }
     }
 
+
+
     public void setOppositeColor(Color color) {
         if (color == Color.BLACK)
             myColor = Color.WHITE;
         else
             myColor = Color.BLACK;
+    }
+
+    public String getMyLogin() {
+        return myLogin;
+    }
+
+    public void setMyLogin(String myLogin) {
+        this.myLogin = myLogin;
+    }
+
+    public String getOpponentLogin() {
+        return opponentLogin;
+    }
+
+    public void setOpponentLogin(String opponentLogin) {
+        this.opponentLogin = opponentLogin;
     }
 
     public Object getMyMonitor() {
