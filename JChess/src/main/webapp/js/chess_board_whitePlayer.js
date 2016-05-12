@@ -66,7 +66,6 @@ function convertToStdCoordinate(coordinate) {
 }
 
 function sendToServer(json) {
-
     $.ajax({
         type: 'POST',
         url: 'game',
@@ -128,7 +127,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: convertToStdCoordinate(clickedBlock) // G2
     }
     sendToServer(jsonToServer);
-    if (answer = 'setPiece') {
+    if (answer === 'promotion') {
         setPiece();
     }
     if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
@@ -136,15 +135,13 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
     } else {
         return false;
     }
-
-
 }
 
 function setPiece() {
     canvas.removeEventListener('click', board_click);
     var modal1 = document.getElementById('choosePiece');
     jQuery(document).ready(function ($) {
-    $('#choosePiece').modal('show');
+        $('#choosePiece').modal('show');
     });
     var pictureQueen = document.getElementById('pictureQueen');
     var pictureBishop = document.getElementById('pictureBishop');
@@ -166,7 +163,7 @@ function setPiece() {
 
 function bishop_click() {
    var jsonToServer = {
-        action: 'setBishop'
+        action: 'BW'
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_BISHOP;
@@ -175,7 +172,7 @@ function bishop_click() {
 
 function queen_click() {
     var jsonToServer = {
-        action: 'setQueen'
+        action: 'QW'
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_QUEEN;
@@ -183,7 +180,7 @@ function queen_click() {
 
 function castle_click() {
     var jsonToServer = {
-        action: 'setCastle'
+        action: 'RW'
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_CASTLE;
@@ -191,15 +188,13 @@ function castle_click() {
 
 function rouke_click() {
     var jsonToServer = {
-        action: 'setRouke'
+        action: 'NW'
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_ROUKE;
 }
 
 function getPieceAtBlock(clickedBlock, team) {
-
-
     return getPieceAtBlockForTeam(team, clickedBlock);
 }
 
@@ -763,16 +758,34 @@ function endGame(bool) {
             $('#myModal').modal('show');
         });
     }
+}
 
+function convertPiece() {
+    if(selectedPiece.piece === 'QB'){
+        selectedPiece.piece = PIECE_QUEEN;
+        return;
+    }
+    if(selectedPiece.piece === 'RB'){
+        selectedPiece.piece = PIECE_CASTLE;
+        return;
+    }
+    if(selectedPiece.piece === 'NB'){
+        selectedPiece.piece = PIECE_ROUKE;
+        return;
+    }
+    if(selectedPiece.piece === 'BB'){
+        selectedPiece.piece = PIECE_BISHOP;
+        return;
+    }
 }
 
 function WaitingEnemyMove() {
     canvas.removeEventListener('click', board_click);
     $.post('game', {action: 'getEnemyMove'}, function (data) {
         canvas.addEventListener('click', board_click, false);
-        if(data.action = 'enemySetPiece'){ //TODO: replace name action
-            data.action = 'move';
-            convertToBadCoordinateForPiece(data.from).piece = data.piece;
+        if(data.chessPiece != null){
+            selectedPiece = convertToBadCoordinateForPiece(data.from);
+            convertPiece();
         }
         if (data.action === 'move') {
             selectedPiece = convertToBadCoordinateForPiece(data.from);

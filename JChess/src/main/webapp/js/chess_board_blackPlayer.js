@@ -67,10 +67,6 @@ function convertToStdCoordinate(coordinate) {
 }
 
 function sendToServer(json) {
-    /*$.post('game', $.param(json), function (data) {
-     answer = data;
-     })*/
-
     $.ajax({
         type: 'POST',
         url: 'game',
@@ -80,7 +76,6 @@ function sendToServer(json) {
         },
         async: false
     });
-    
 }
 
 function screenToBlock(x, y) {
@@ -137,7 +132,7 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
         to: convertToStdCoordinate(clickedBlock)
     }
     sendToServer(jsonToServer);
-    if (answer = 'setPiece') {
+    if (answer === 'promotion') {
         setPiece();
     }
     if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
@@ -149,7 +144,11 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
 
 function setPiece() {
     canvas.removeEventListener('click', board_click);
-
+    var modal1 = document.getElementById('choosePiece');
+    jQuery(document).ready(function ($) {
+        $('#choosePiece').modal('show');
+    });
+    
     var pictureQueen = document.getElementById('pictureQueen');
     var pictureBishop = document.getElementById('pictureBishop');
     var pictureRouke = document.getElementById('pictureRouke');
@@ -169,7 +168,7 @@ function setPiece() {
 
 function bishop_click() {
     var jsonToServer = {
-        action: 'setBishop'
+        action: 'BB'
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_BISHOP;
@@ -178,7 +177,7 @@ function bishop_click() {
 
 function queen_click() {
     var jsonToServer = {
-        action: 'setQueen'
+        action: 'QB'
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_QUEEN;
@@ -186,7 +185,7 @@ function queen_click() {
 
 function castle_click() {
     var jsonToServer = {
-        action: 'setCastle'
+        action: 'RB'
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_CASTLE;
@@ -194,7 +193,7 @@ function castle_click() {
 
 function rouke_click() {
     var jsonToServer = {
-        action: 'setRouke'
+        action: 'NB'
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_ROUKE;
@@ -767,10 +766,33 @@ function endGame(bool) {
     }
 }
 
+function convertPiece() {
+    if(selectedPiece.piece === 'QW'){
+        selectedPiece.piece = PIECE_QUEEN;
+        return;
+    }
+    if(selectedPiece.piece === 'RW'){
+        selectedPiece.piece = PIECE_CASTLE;
+        return;
+    }
+    if(selectedPiece.piece === 'NW'){
+        selectedPiece.piece = PIECE_ROUKE;
+        return;
+    }
+    if(selectedPiece.piece === 'BW'){
+        selectedPiece.piece = PIECE_BISHOP;
+        return;
+    }
+}
+
 function WaitingEnemyMove() {
     canvas.removeEventListener('click', board_click);
     $.post('game', {action: 'getEnemyMove'}, function (data) {
         canvas.addEventListener('click', board_click, false);
+        if(data.chessPiece != null){
+            selectedPiece = convertToBadCoordinateForPiece(data.from);
+            convertPiece();
+        }
         if (data.action === 'move') {
             selectedPiece = convertToBadCoordinateForPiece(data.from);
             ctx.lineWidth = SELECT_LINE_WIDTH;

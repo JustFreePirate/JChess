@@ -1,9 +1,10 @@
 <html>
 <head>
     <title>Game page</title>
-    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
     <script type="text/javascript" src="/jchess/js/chess_board_whitePlayer.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
