@@ -81,7 +81,9 @@ public class GameServlet extends HttpServlet {
                     writer.close();
                     //сообщим оппоненту, что походили
                     synchronized (gameContainer.getOpponentMonitor()) {
-                        gameContainer.getOpponentMonitor().notify();
+                        if (respString != PROMOTION) { //не ожидаем ещё подтверждения фигуры
+                            gameContainer.getOpponentMonitor().notify();
+                        }
                     }
                 } else {
                     getServletContext().log("unexpected action" + action); //log
@@ -99,13 +101,8 @@ public class GameServlet extends HttpServlet {
         String state;
         if (game.isCheckmate()) {
             state = CHECKMATE;
-
-// TODO: isDraw ~> isStalemate?
-        } else if (game.isDraw()) {
+        } else if (game.isStalemate()) {
             state = DRAW;
-//        } else if (game.isStalemate()) {
-//            state = DRAW;
-
         } else if (game.isCheck()) {
             state = CHECK;
         } else if (game.checkPawnOnTheEdge()) {

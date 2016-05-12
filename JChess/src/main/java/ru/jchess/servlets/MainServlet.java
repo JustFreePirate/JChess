@@ -39,12 +39,15 @@ public class MainServlet extends HttpServlet {
                         synchronized (opponentMonitor) {
                             //заполняем его контейнер
                             opponentGameContainer.setOpponentMonitor(myMonitor);
+                            opponentGameContainer.setOpponentMonitor(LoginServlet.getLogin(request));
                             //заполняем свой контейнер
                             GameContainer myGameContainer = new GameContainer(myMonitor);
                             myGameContainer.setMyMonitor(myMonitor);
                             myGameContainer.setOpponentMonitor(opponentMonitor);
                             myGameContainer.setOppositeColor(opponentGameContainer.getMyColor());
                             myGameContainer.setGame(opponentGameContainer.getGame());
+                            myGameContainer.setMyLogin(LoginServlet.getLogin(request));
+                            myGameContainer.setOpponentLogin(opponentGameContainer.getMyLogin());
 
                             opponentMonitor.notify(); //оповещаем соперника о том, что мы подключились
                             //Записываем в сессию информацию о текущей партии
@@ -63,7 +66,11 @@ public class MainServlet extends HttpServlet {
                 gameContainer.chooseRandomColor();
                 Game game = new Game(WHITE_PERSON, BLACK_PERSON); //создаем игру (пусть конструктор не смущает)
                 gameContainer.setGame(game); //кидаем игру в контейнер
-                waitingQueue.push(gameContainer); //кидаем контейнер в очередь ожидания
+                gameContainer.chooseRandomColor();
+                gameContainer.setMyLogin(LoginServlet.getLogin(request));
+                synchronized (waitingQueue) {
+                    waitingQueue.push(gameContainer); //кидаем контейнер в очередь ожидания
+                }
                 synchronized (myMonitor) {
                     while (gameContainer.size() < 2) {
                         try {

@@ -81,6 +81,8 @@ public class Game {
     }
 
 
+
+
     public boolean checkPawnOnTheEdge() {
         return checkPawnOnTheEdge(this.board);
     }
