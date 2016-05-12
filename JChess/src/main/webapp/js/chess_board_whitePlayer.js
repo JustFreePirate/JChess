@@ -129,17 +129,23 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
     sendToServer(jsonToServer);
     if (answer === 'promotion') {
         setPiece();
+        // начать повторы с интервалом 2 сек
+        var timerId = setInterval(function () {
+            if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
+                clearInterval(timerId);
+                return 'correct';
+            }
+        }, 2000);
     }
     if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
-        return true;
+        return 'correct';
     } else {
-        return false;
+        return 'notCorrect';
     }
 }
 
 function setPiece() {
     canvas.removeEventListener('click', board_click);
-    var modal1 = document.getElementById('choosePiece');
     jQuery(document).ready(function ($) {
         $('#choosePiece').modal('show');
     });
@@ -151,23 +157,31 @@ function setPiece() {
     pictureRouke.addEventListener('click', rouke_click);
     pictureCastle.addEventListener('click', castle_click);
     pictureQueen.addEventListener('click', queen_click);
-    while(answer != 'move' && answer != 'check' && answer != 'checkmate'){
+    
+}
 
-    }
+function removeActions() {
+    var pictureQueen = document.getElementById('pictureQueen');
+    var pictureBishop = document.getElementById('pictureBishop');
+    var pictureRouke = document.getElementById('pictureRouke');
+    var pictureCastle = document.getElementById('pictureCastle');
     canvas.addEventListener('click', board_click);
-    pictureBishop.removeEventListener(bishop_click());
-    pictureCastle.removeEventListener(castle_click());
-    pictureQueen.removeEventListener(queen_click());
-    pictureRouke.removeEventListener(rouke_click());
+    pictureBishop.removeEventListener('click', bishop_click());
+    pictureCastle.removeEventListener('click', castle_click());
+    pictureQueen.removeEventListener('click', queen_click());
+    pictureRouke.removeEventListener('click', rouke_click());
 }
 
 function bishop_click() {
-   var jsonToServer = {
+    var jsonToServer = {
         action: 'BW'
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_BISHOP;
-
+    jQuery(document).ready(function ($) {
+        $('#choosePiece').modal('hide');
+    });
+    removeActions();
 }
 
 function queen_click() {
@@ -176,6 +190,10 @@ function queen_click() {
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_QUEEN;
+    jQuery(document).ready(function ($) {
+        $('#choosePiece').modal('hide');
+    });
+    removeActions();
 }
 
 function castle_click() {
@@ -184,6 +202,10 @@ function castle_click() {
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_CASTLE;
+    jQuery(document).ready(function ($) {
+        $('#choosePiece').modal('hide');
+    });
+    removeActions();
 }
 
 function rouke_click() {
@@ -192,6 +214,10 @@ function rouke_click() {
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_ROUKE;
+    jQuery(document).ready(function ($) {
+        $('#choosePiece').modal('hide');
+    });
+    removeActions();
 }
 
 function getPieceAtBlock(clickedBlock, team) {
@@ -573,55 +599,38 @@ function processMove(clickedBlock) {
     if (pieceAtBlock !== null) {
         removeSelection(selectedPiece);
         checkIfPieceClicked(clickedBlock, json.white);
-    } else if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === true) {
-
-        if ((selectedPiece.piece === PIECE_PAWN) && Math.abs(selectedPiece.col - clickedBlock.col) === 1
-            && Math.abs(selectedPiece.row - clickedBlock.row) === 1 && enemyPiece === null) {     // Взятие на проходе
-            addToTable(convertToStdCoordinate(selectedPiece),
-                convertToStdCoordinate(clickedBlock), 'white');
-            movePiece(clickedBlock, enemyPiece);
-            clickedBlock.row += 1;
-            enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
-            drawBlock(enemyPiece.col, enemyPiece.row);
-            json.black[enemyPiece.position].status = TAKEN;
-        }
-        if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2) {
-            if (selectedPiece.col - clickedBlock.col === 2) {                   // Рокировка
-                addToTable('0-0-0', '', 'white');
-                longCastling(clickedBlock, enemyPiece);
-            } else {
-                addToTable('0-0', '', 'white');
-                shortCastling(clickedBlock, enemyPiece);
-            }
-        } else {
-            addToTable(convertToStdCoordinate(selectedPiece),
-                convertToStdCoordinate(clickedBlock), 'white');                 // Просто ход
-            movePiece(clickedBlock, enemyPiece);
+    } else {
+        if (canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) === 'promotion') {
 
         }
-        if (answer === 'checkmate') {
-            ctx.lineWidth = SELECT_LINE_WIDTH;                                          // Рисуем врагу красную обводку
-            ctx.strokeStyle = '#ff0000';
-            ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
-                (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
-                BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
-                BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+        if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
 
-            // Удаляем свою обводку
-            ctx.lineWidth = SELECT_LINE_WIDTH;
-            if ((json.white[4].col + json.white[4].row ) % 2 === 1) {
-                ctx.strokeStyle = '#b58863';  // dark color
-            } else {
-                ctx.strokeStyle = '#f0d9b5';  // white color
+            if ((selectedPiece.piece === PIECE_PAWN) && Math.abs(selectedPiece.col - clickedBlock.col) === 1
+                && Math.abs(selectedPiece.row - clickedBlock.row) === 1 && enemyPiece === null) {     // Взятие на проходе
+                addToTable(convertToStdCoordinate(selectedPiece),
+                    convertToStdCoordinate(clickedBlock), 'white');
+                movePiece(clickedBlock, enemyPiece);
+                clickedBlock.row += 1;
+                enemyPiece = blockOccupiedByEnemy(clickedBlock, json.black);
+                drawBlock(enemyPiece.col, enemyPiece.row);
+                json.black[enemyPiece.position].status = TAKEN;
             }
-            ctx.strokeRect((json.white[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
-                (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
-                BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
-                BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
-            endGame(true);
-        } else {
-            if (answer === 'check') {                                    //Рисуем врагу красную обводку
-                ctx.lineWidth = SELECT_LINE_WIDTH;
+            if (selectedPiece.piece === PIECE_KING && Math.abs(selectedPiece.col - clickedBlock.col) === 2) {
+                if (selectedPiece.col - clickedBlock.col === 2) {                   // Рокировка
+                    addToTable('0-0-0', '', 'white');
+                    longCastling(clickedBlock, enemyPiece);
+                } else {
+                    addToTable('0-0', '', 'white');
+                    shortCastling(clickedBlock, enemyPiece);
+                }
+            } else {
+                addToTable(convertToStdCoordinate(selectedPiece),
+                    convertToStdCoordinate(clickedBlock), 'white');                 // Просто ход
+                movePiece(clickedBlock, enemyPiece);
+
+            }
+            if (answer === 'checkmate') {
+                ctx.lineWidth = SELECT_LINE_WIDTH;                                          // Рисуем врагу красную обводку
                 ctx.strokeStyle = '#ff0000';
                 ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
@@ -639,9 +648,17 @@ function processMove(clickedBlock) {
                     (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+                endGame(true);
             } else {
-                if (answer === 'move') {
-                    // удаляем свою обводку
+                if (answer === 'check') {                                    //Рисуем врагу красную обводку
+                    ctx.lineWidth = SELECT_LINE_WIDTH;
+                    ctx.strokeStyle = '#ff0000';
+                    ctx.strokeRect((json.black[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                        (json.black[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                        BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
+                        BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+
+                    // Удаляем свою обводку
                     ctx.lineWidth = SELECT_LINE_WIDTH;
                     if ((json.white[4].col + json.white[4].row ) % 2 === 1) {
                         ctx.strokeStyle = '#b58863';  // dark color
@@ -652,11 +669,27 @@ function processMove(clickedBlock) {
                         (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                         BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                         BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+                } else {
+                    if (answer === 'move') {
+                        // удаляем свою обводку
+                        ctx.lineWidth = SELECT_LINE_WIDTH;
+                        if ((json.white[4].col + json.white[4].row ) % 2 === 1) {
+                            ctx.strokeStyle = '#b58863';  // dark color
+                        } else {
+                            ctx.strokeStyle = '#f0d9b5';  // white color
+                        }
+                        ctx.strokeRect((json.white[4].col * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                            (json.white[4].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
+                            BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
+                            BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
+                    }
                 }
+                answer = '';
+                currentTurn = BLACK_TEAM;
+                WaitingEnemyMove();
             }
-            answer = '';
-            currentTurn = BLACK_TEAM;
-            WaitingEnemyMove();
+        } else if (answer === 'promotion') {
+            alert('hz che delat');
         }
     }
 }
@@ -744,8 +777,6 @@ function longCastlingForEnemy(clickedBlock, enemyPiece) {
 
 function endGame(bool) {
     canvas.removeEventListener('click', board_click);
-    var modal = document.getElementById('myModal');
-
     var text = document.getElementById('endText');
     if (bool) {
         text.innerHTML = 'Good Job. You win!';
@@ -761,19 +792,19 @@ function endGame(bool) {
 }
 
 function convertPiece() {
-    if(selectedPiece.piece === 'QB'){
+    if (selectedPiece.piece === 'QB') {
         selectedPiece.piece = PIECE_QUEEN;
         return;
     }
-    if(selectedPiece.piece === 'RB'){
+    if (selectedPiece.piece === 'RB') {
         selectedPiece.piece = PIECE_CASTLE;
         return;
     }
-    if(selectedPiece.piece === 'NB'){
+    if (selectedPiece.piece === 'NB') {
         selectedPiece.piece = PIECE_ROUKE;
         return;
     }
-    if(selectedPiece.piece === 'BB'){
+    if (selectedPiece.piece === 'BB') {
         selectedPiece.piece = PIECE_BISHOP;
         return;
     }
@@ -783,7 +814,7 @@ function WaitingEnemyMove() {
     canvas.removeEventListener('click', board_click);
     $.post('game', {action: 'getEnemyMove'}, function (data) {
         canvas.addEventListener('click', board_click, false);
-        if(data.chessPiece != null){
+        if (data.chessPiece != null) {
             selectedPiece = convertToBadCoordinateForPiece(data.from);
             convertPiece();
         }
@@ -820,7 +851,6 @@ function WaitingEnemyMove() {
                         BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                         BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
                     endGame(false);
-
                 }
             }
         }
@@ -894,16 +924,13 @@ function draw() {
 
             Image123.width = Image123.width * (canvas.height / Image123.height);
             Image123.height = canvas.height;
-            alpha = (canvas.height / 2)  - 165;
-            Table.style.marginTop = alpha.toString() + "px";
-            player1.style.margin = "10px";
-            player1.style.color = "#26a69a";
-            player1.style.fontSize = "18px";
-            player2.style.margin = "10px";
-            player2.style.color = "#26a69a";
-            player2.style.fontSize = "18px";
+
 
         }
+        //css
+        alpha = (canvas.height / 2) - 165;
+        Table.style.marginTop = alpha.toString() + "px";
+        //
 
         // Calculate the precise block size
         BLOCK_SIZE = canvas.height / NUMBER_OF_ROWS;

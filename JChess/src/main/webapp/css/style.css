@@ -494,4 +494,16 @@ canvas {
 width:700px;
 height: 700px;}
 
+#one{
+  margin : 10px;
+  color : #26a69a;
+  font-size : 18px;
+}
+
+#two{
+  margin : 10px;
+  color : #26a69a;
+  font-size : 18px;
+}
+
 

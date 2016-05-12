@@ -124,7 +124,6 @@ function blockOccupied(clickedBlock) {
 
 
 function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
-
     var jsonToServer;
     jsonToServer = {
         action: "move",
@@ -134,13 +133,28 @@ function canSelectedMoveToBlock(selectedPiece, clickedBlock, enemyPiece) {
     sendToServer(jsonToServer);
     if (answer === 'promotion') {
         setPiece();
-    }
-    if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
-        return (true);
+        // начать повторы с интервалом 2 сек
+        var timerId = setTimeout(function check() {
+            if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
+                return (true);
+            }
+            timerId = setTimeout(tick, 2000);
+        }, 2000);
+
+        /*
+        setTimeout(function() {
+            clearInterval(timerId);
+            alert( 'стоп' );
+        }, 50000);*/
     } else {
-        return false;
+        if (answer === 'move' || answer === 'check' || answer === 'checkmate') {
+            return (true);
+        } else {
+            return false;
+        }
     }
 }
+
 
 function setPiece() {
     canvas.removeEventListener('click', board_click);
@@ -148,7 +162,6 @@ function setPiece() {
     jQuery(document).ready(function ($) {
         $('#choosePiece').modal('show');
     });
-    
     var pictureQueen = document.getElementById('pictureQueen');
     var pictureBishop = document.getElementById('pictureBishop');
     var pictureRouke = document.getElementById('pictureRouke');
@@ -157,13 +170,18 @@ function setPiece() {
     pictureRouke.addEventListener('click', rouke_click);
     pictureCastle.addEventListener('click', castle_click);
     pictureQueen.addEventListener('click', queen_click);
-    while(answer != 'move' && answer != 'check' && answer != 'checkmate'){
+}
 
-    }
-    pictureBishop.removeEventListener(bishop_click());
-    pictureCastle.removeEventListener(castle_click());
-    pictureQueen.removeEventListener(queen_click());
-    pictureRouke.removeEventListener(rouke_click());
+function removeActions() {
+    var pictureQueen = document.getElementById('pictureQueen');
+    var pictureBishop = document.getElementById('pictureBishop');
+    var pictureRouke = document.getElementById('pictureRouke');
+    var pictureCastle = document.getElementById('pictureCastle');
+    canvas.addEventListener('click', board_click);
+    pictureBishop.removeEventListener('click', bishop_click());
+    pictureCastle.removeEventListener('click', castle_click());
+    pictureQueen.removeEventListener('click', queen_click());
+    pictureRouke.removeEventListener('click', rouke_click());
 }
 
 function bishop_click() {
@@ -172,7 +190,10 @@ function bishop_click() {
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_BISHOP;
-
+    jQuery(document).ready(function ($) {
+        $('#choosePiece').modal('hide');
+    });
+    removeActions();
 }
 
 function queen_click() {
@@ -181,6 +202,10 @@ function queen_click() {
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_QUEEN;
+    jQuery(document).ready(function ($) {
+        $('#choosePiece').modal('hide');
+    });
+    removeActions();
 }
 
 function castle_click() {
@@ -189,6 +214,10 @@ function castle_click() {
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_CASTLE;
+    jQuery(document).ready(function ($) {
+        $('#choosePiece').modal('hide');
+    });
+    removeActions();
 }
 
 function rouke_click() {
@@ -197,6 +226,10 @@ function rouke_click() {
     }
     sendToServer(jsonToServer);
     selectedPiece.piece = PIECE_ROUKE;
+    jQuery(document).ready(function ($) {
+        $('#choosePiece').modal('hide');
+    });
+    removeActions();
 }
 
 function getPieceAtBlock(clickedBlock, team) {
@@ -524,7 +557,7 @@ function movePiece(clickedBlock, enemyPiece) {
     drawBlock(selectedPiece.col, selectedPiece.row);
 
     var team = json.black,
-    opposite = json.white;
+        opposite = json.white;
 
     team[selectedPiece.position].col = clickedBlock.col;
     team[selectedPiece.position].row = clickedBlock.row;
@@ -584,10 +617,10 @@ function processMove(clickedBlock) {
                 (json.white[3].row * BLOCK_SIZE) + SELECT_LINE_WIDTH,
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                 BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
-            
+
             // Удаляем свою обводку
             ctx.lineWidth = SELECT_LINE_WIDTH;
-            if ((json.black[3].col + json.black[3].row )% 2 === 1) {
+            if ((json.black[3].col + json.black[3].row ) % 2 === 1) {
                 ctx.strokeStyle = '#b58863';  // dark color
             } else {
                 ctx.strokeStyle = '#f0d9b5';  // white color
@@ -606,9 +639,9 @@ function processMove(clickedBlock) {
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
                 ctx.lineWidth = SELECT_LINE_WIDTH;
-                
+
                 // Удаляем свою обводку
-                if ((json.black[3].col + json.black[3].row )% 2 === 1) {
+                if ((json.black[3].col + json.black[3].row ) % 2 === 1) {
                     ctx.strokeStyle = '#b58863';  // dark color
                 } else {
                     ctx.strokeStyle = '#f0d9b5';  // white color
@@ -618,10 +651,10 @@ function processMove(clickedBlock) {
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2),
                     BLOCK_SIZE - (SELECT_LINE_WIDTH * 2));
             } else {
-                if(answer === 'move'){
+                if (answer === 'move') {
                     // Удаляем свою обводку 
                     ctx.lineWidth = SELECT_LINE_WIDTH;
-                    if ((json.black[3].col + json.black[3].row )% 2 === 1) {
+                    if ((json.black[3].col + json.black[3].row ) % 2 === 1) {
                         ctx.strokeStyle = '#b58863';  // dark color
                     } else {
                         ctx.strokeStyle = '#f0d9b5';  // white color
@@ -767,19 +800,19 @@ function endGame(bool) {
 }
 
 function convertPiece() {
-    if(selectedPiece.piece === 'QW'){
+    if (selectedPiece.piece === 'QW') {
         selectedPiece.piece = PIECE_QUEEN;
         return;
     }
-    if(selectedPiece.piece === 'RW'){
+    if (selectedPiece.piece === 'RW') {
         selectedPiece.piece = PIECE_CASTLE;
         return;
     }
-    if(selectedPiece.piece === 'NW'){
+    if (selectedPiece.piece === 'NW') {
         selectedPiece.piece = PIECE_ROUKE;
         return;
     }
-    if(selectedPiece.piece === 'BW'){
+    if (selectedPiece.piece === 'BW') {
         selectedPiece.piece = PIECE_BISHOP;
         return;
     }
@@ -789,7 +822,7 @@ function WaitingEnemyMove() {
     canvas.removeEventListener('click', board_click);
     $.post('game', {action: 'getEnemyMove'}, function (data) {
         canvas.addEventListener('click', board_click, false);
-        if(data.chessPiece != null){
+        if (data.chessPiece != null) {
             selectedPiece = convertToBadCoordinateForPiece(data.from);
             convertPiece();
         }
@@ -899,16 +932,13 @@ function draw() {
 
             Image123.width = Image123.width * (canvas.height / Image123.height);
             Image123.height = canvas.height;
-            alpha = (canvas.height / 2)  - 165;
-            Table.style.marginTop = alpha.toString() + "px";
-            player1.style.margin = "10px";
-            player1.style.color = "#26a69a";
-            player1.style.fontSize = "18px";
-            player2.style.margin = "10px";
-            player2.style.color = "#26a69a";
-            player2.style.fontSize = "18px";
+
 
         }
+
+        //css
+        alpha = (canvas.height / 2) - 165;
+        Table.style.marginTop = alpha.toString() + "px";
 
         // Calculate the precise block size
         BLOCK_SIZE = canvas.height / NUMBER_OF_ROWS;
